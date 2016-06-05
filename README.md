@@ -12,6 +12,6 @@ No actual application to modify the files yet. Only a html table generator to se
 
 
 ## How to use
-Dump as many "aiadaptation.xml" files as you can find from many people in the "/seeds" directory. Run the tool it will generate an "ailevels.html" file similar to [this](http://htmlpreview.github.io/?https://github.com/pixeljetstream/r3e-adaptive-ai-primer/blob/master/doc/sample.html).
+Dump as many "aiadaptation.xml" files as you can find from many people in the "/seeds" directory. Run the tool it will generate an "ailevels.html" file similar to [this](http://htmlpreview.github.io/?https://github.com/pixeljetstream/r3e-adaptive-ai-primer/blob/master/docs/sample.html).
 
 The table gives you AI laptimes for different levels for each track/car combo found in the database. The lower number is the "variance" in seconds, when multiple times for the same AI level were found. The lower the variance the more reliable the number (unless zero then it means we only have one entry).
