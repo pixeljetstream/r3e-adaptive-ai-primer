@@ -1,6 +1,6 @@
 -- html generation
 stylesheetfile = "_style.css"
-minAI = 85
+minAI = 80
 maxAI = 120
 
 -- general

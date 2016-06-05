@@ -379,9 +379,9 @@ local function ParseAdaptive(filename, database)
           class.minAI = math.min(ailevel, class.minAI or ailevel)
           class.maxAI = math.max(ailevel, class.maxAI or ailevel)
           
-          if (false) then          
+          if (false and classid == "3375") then          
             printlog(trackid, classid, ailevel, aitime)
-            --printlog(class.minAI, class.maxAI)
+            printlog(class.minAI, class.maxAI)
           end
           local times = track.ailevels[ailevel] or {}
           track.ailevels[ailevel] = times
