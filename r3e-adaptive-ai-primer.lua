@@ -240,7 +240,7 @@ local function GenerateStatsHTML(outfilename,database)
           variance = variance + diff*diff
         end
         variance = math.sqrt(variance)
-        aitime = MakeTime(avgtime)..'<br><span class="minor">'..string.format("%.4f", variance).."</span>"
+        aitime = MakeTime(avgtime)..'<br><span class="minor">'..string.format("%.3f / %d", variance, num).."</span>"
       else
         aitime = ""
       end
@@ -404,8 +404,17 @@ local function ParseAdaptive(filename, database)
           local times = track.ailevels[ailevel] or {}
           track.ailevels[ailevel] = times
           
-          table.insert(times, aitime)
+          local num = #times
           
+          local found = false
+          for i=1,num do
+            if (times[i] == aitime) then 
+              found = true
+            end
+          end
+          if not found then 
+            table.insert(times, aitime)
+          end
         end)
       end
       
