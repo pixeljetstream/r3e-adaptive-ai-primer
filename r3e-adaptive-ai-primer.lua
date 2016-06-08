@@ -190,8 +190,26 @@ local function GenerateStatsHTML(outfilename,database)
     <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
     <meta charset="utf-8"/>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="]]..cfg.stylesheetfile..[[">
+    
+  ]])
+  if (cfg.embedStylesheet) then
+    local sf = io.open(cfg.embedStylesheet, "rt")
+    local str = sf:read("*a")
+    f:write([[ 
+      <style type="text/css">
+      <!-- ]]
+      ..str..[[ 
+      -->
+      </style>
+    ]])
+    sf:close()
+  else
+    f:write([[ 
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+      <link rel="stylesheet" href="]]..cfg.stylesheetfile..[[">
+    ]])
+  end
+  f:write([[ 
     </head>
     <body>
     <span class="minor">Icons are linked directly from the game's official website</span>

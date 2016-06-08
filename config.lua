@@ -2,6 +2,7 @@
 stylesheetfile = "_style.css"
 minAI = 80
 maxAI = 120
+embedStylesheet = "results/_style.css" -- leave nil if you just want to link to above file
 
 -- general
 seeddir     = "seeds/"
