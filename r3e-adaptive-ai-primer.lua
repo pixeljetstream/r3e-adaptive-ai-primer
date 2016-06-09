@@ -135,8 +135,11 @@ local function parseAssets(filename)
   printlog("Classes")
   local numClasses = 0
   local classes = {}
+  local classesSorted = {}
   for name,id in strclasses:gmatch('<optgroup label="([^<>]-)">%s*<option value="class%-([^<>]-)">') do
-    classes[id] = {name=name, id=id,}
+    local tab = {name=name, id=id}
+    table.insert(classesSorted, tab)
+    classes[id] = tab
     printlog(id,name)
     numClasses = numClasses + 1
   end
@@ -149,15 +152,25 @@ local function parseAssets(filename)
   
   printlog("Tracks")
   local tracks = {}
+  local tracksSorted = {}
   local numTracks = 0
   for id,name in strtracks:gmatch('<option value="([^<>]-)".->%s*([^<>]-)</option>') do
-    tracks[id] = {name=name, id=id,}
+    local tab = {name=name, id=id}
+    table.insert(tracksSorted, tab)
+    tracks[id] = tab
     printlog(id,name)
     numTracks = numTracks + 1
   end
   printlog(numTracks)
   
-  return {classes=classes, tracks=tracks, numClasses=numClasses, numTracks=numTracks}
+  return {
+    classes=classes, 
+    classesSorted=classesSorted, 
+    tracks=tracks, 
+    tracksSorted=tracksSorted,
+    numClasses=numClasses, 
+    numTracks=numTracks
+  }
 end
 local function makeIcon(url,name,style)
   return '<img src="'..url..'" alt="'..name..'" title="'..name..'" style="vertical-align:middle;'..(style or "")..'" >'
@@ -233,7 +246,7 @@ local function GenerateStatsHTML(outfilename,database)
   local function writeTrack(track, trackasset, entry, minAI, maxAI)
     f:write([[
       <tr]]..(entry%2 == 0 and ' class="even"' or "")..[[>
-      <td class="name">]]..trackasset.id.." - "..trackasset.name..[[</td>
+      <td class="name">]]..trackasset.name.." ("..trackasset.id..[[)</td>
     ]])
     
     local found = 0
@@ -273,7 +286,7 @@ local function GenerateStatsHTML(outfilename,database)
   
   local function writeClass(class, classasset)
     f:write([[
-      <h2>]]..classasset.id.." - "..classasset.name..[[</h2>
+      <h2>]]..classasset.name.." ("..classasset.id..[[)</h2>
       <table>
       <tr>
       <th>Track</th>
@@ -294,13 +307,11 @@ local function GenerateStatsHTML(outfilename,database)
     local tracks = {}
     
     local i = 0
-    for trackid, track in pairs(class.tracks) do
-      local trackasset = assets.tracks[trackid]
-      if (trackasset) then
+    for _,trackasset in ipairs(assets.tracksSorted) do
+      local track = class.tracks[trackasset.id]
+      if (track) then
         writeTrack(track, trackasset, i, minAI, maxAI)
         i = i + 1
-      else
-        printlog("warning trackid not found", trackid)
       end
     end
     
@@ -312,19 +323,17 @@ local function GenerateStatsHTML(outfilename,database)
   end
   
   
-  for classid, class in pairs(database.classes or {}) do
-    
-    local classasset = assets.classes[classid]
-    if (classasset) then
+  
+  for _,classasset in ipairs(assets.classesSorted) do
+    local class = database.classes[classasset.id]
+    if (class) then
       writeClass(class, classasset)
-    else
-      printlog("warning classid not found", classid)
     end
   end
-  
+    
   f:write([[
-    Total (track * car * ai) Entries:]]..totalEntries..string.format("(%.2f%%)", totalEntries*100/(assets.numClasses*assets.numTracks*(cfg.maxAI-cfg.minAI)) )..[[ Times:]]..totalTimes..[[<br> 
-    Track (track * car)     Entries:]]..trackEntries..string.format("(%.2f%%)", trackEntries*100/(assets.numClasses*assets.numTracks) )..[[ 
+    Total (track * car * ai) Entries: ]]..totalEntries..string.format(" (%.2f%%)", totalEntries*100/(assets.numClasses*assets.numTracks*(cfg.maxAI-cfg.minAI)) )..[[ Times: ]]..totalTimes..[[<br> 
+    Track (track * car)     Entries: ]]..trackEntries..string.format(" (%.2f%%)", trackEntries*100/(assets.numClasses*assets.numTracks) )..[[ 
     </body>
     </html>
   ]])
@@ -467,13 +476,13 @@ local function RegenerateDatabaseHTML()
     found, file = dir:GetNext()
   end
   
-  GenerateStatsHTML(cfg.outdir.."ailevels.html", database)
+  GenerateStatsHTML(cfg.outdir..cfg.resultfile, database)
 end
 
 if (false) then
   local database = {classes = {} }
   ParseAdaptive(cfg.seeddir.."aiadaptation (3).xml", database)
-  GenerateStatsHTML(cfg.outdir.."ailevels.html", database)
+  GenerateStatsHTML(cfg.outdir..cfg.resultfile, database)
 else
   RegenerateDatabaseHTML()
 end

@@ -1,4 +1,5 @@
 -- html generation
+resultfile = "sample.html"
 stylesheetfile = "_style.css"
 minAI = 80
 maxAI = 120
