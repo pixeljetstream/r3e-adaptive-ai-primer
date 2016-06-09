@@ -129,25 +129,35 @@ local function parseAssets(filename)
   
   -- <optgroup label="ADAC GT Masters 2013">
   -- <option value="class-2922">
+  
+  local strclasses = str:match('<select name="car_class">(.-)</select>')
 
   printlog("Classes")
+  local numClasses = 0
   local classes = {}
-  for name,id in str:gmatch('<optgroup label="([^<>]-)">%s*<option value="class%-([^<>]-)">') do
+  for name,id in strclasses:gmatch('<optgroup label="([^<>]-)">%s*<option value="class%-([^<>]-)">') do
     classes[id] = {name=name, id=id,}
     printlog(id,name)
+    numClasses = numClasses + 1
   end
-  
+  printlog(numClasses)
+ 
   -- <option value="5095" data-image="http://game.raceroom.com/de/assets/content/tracklayout/nordschleife-24-hours-5095-image-thumb.webp">
   -- Nordschleife - 24 Hours</option>
   
+  local strtracks = str:match('<select name="track">(.-)</select>')
+  
   printlog("Tracks")
   local tracks = {}
-  for id,name in str:gmatch('<option value="([^<>]-)".->%s*([^<>]-)</option>') do
+  local numTracks = 0
+  for id,name in strtracks:gmatch('<option value="([^<>]-)".->%s*([^<>]-)</option>') do
     tracks[id] = {name=name, id=id,}
     printlog(id,name)
+    numTracks = numTracks + 1
   end
+  printlog(numTracks)
   
-  return {classes=classes, tracks=tracks}
+  return {classes=classes, tracks=tracks, numClasses=numClasses, numTracks=numTracks}
 end
 local function makeIcon(url,name,style)
   return '<img src="'..url..'" alt="'..name..'" title="'..name..'" style="vertical-align:middle;'..(style or "")..'" >'
@@ -216,6 +226,9 @@ local function GenerateStatsHTML(outfilename,database)
     <h1>R3E AI Database</h1>
   ]])
   
+  local trackEntries = 0
+  local totalEntries = 0
+  local totalTimes   = 0
   
   local function writeTrack(track, trackasset, entry, minAI, maxAI)
     f:write([[
@@ -223,6 +236,7 @@ local function GenerateStatsHTML(outfilename,database)
       <td class="name">]]..trackasset.id.." - "..trackasset.name..[[</td>
     ]])
     
+    local found = 0
     for ai = minAI, maxAI do
       local times = track.ailevels[ai] or {}
       local avgtime  = 0
@@ -241,6 +255,10 @@ local function GenerateStatsHTML(outfilename,database)
         end
         variance = math.sqrt(variance)
         aitime = MakeTime(avgtime)..'<br><span class="minor">'..string.format("%.3f / %d", variance, num).."</span>"
+        
+        totalTimes   = totalTimes + num
+        totalEntries = totalEntries + 1
+        found = 1
       else
         aitime = ""
       end
@@ -249,6 +267,8 @@ local function GenerateStatsHTML(outfilename,database)
         <td class="time">]]..aitime..[[</td>
       ]])
     end
+    
+    trackEntries = trackEntries + found
   end
   
   local function writeClass(class, classasset)
@@ -297,10 +317,14 @@ local function GenerateStatsHTML(outfilename,database)
     local classasset = assets.classes[classid]
     if (classasset) then
       writeClass(class, classasset)
+    else
+      printlog("warning classid not found", classid)
     end
   end
   
   f:write([[
+    Total (track * car * ai) Entries:]]..totalEntries..string.format("(%.2f%%)", totalEntries*100/(assets.numClasses*assets.numTracks*(cfg.maxAI-cfg.minAI)) )..[[ Times:]]..totalTimes..[[<br> 
+    Track (track * car)     Entries:]]..trackEntries..string.format("(%.2f%%)", trackEntries*100/(assets.numClasses*assets.numTracks) )..[[ 
     </body>
     </html>
   ]])
@@ -379,47 +403,49 @@ local function ParseAdaptive(filename, database)
   iterate3(tracklist, function(trackindex, trackkey, trackvalue)
     local trackid = trackkey[1]
     
-    iterate3( trackvalue, function(classindex, classkey, classcustom)
-      local classid = classkey[1]
-      local aientries = classcustom[2]
-      
-      if (aientries and #aientries > 0) then
-        local class = database.classes[classid] or {tracks={}}
-        database.classes[classid] = class
+    if (assets.tracks[trackid]) then
+      iterate3( trackvalue, function(classindex, classkey, classcustom)
+        local classid = classkey[1]
+        local aientries = classcustom[2]
         
-        local track = class.tracks[trackid] or {ailevels={}}
-        class.tracks[trackid] = track
-      
-        iterate3(aientries, function(aiindex, aikey, aicustom)
-          local ailevel = tonumber(aikey[1])
-          local aitime  = tonumber(aicustom[1][1])
+        if (assets.classes[classid]) then
+          if (aientries and #aientries > 0) then
+            local class = database.classes[classid] or {tracks={}}
+            database.classes[classid] = class
+            
+            local track = class.tracks[trackid] or {ailevels={}}
+            class.tracks[trackid] = track
           
-          class.minAI = math.min(ailevel, class.minAI or ailevel)
-          class.maxAI = math.max(ailevel, class.maxAI or ailevel)
-          
-          if (false and classid == "3375") then          
-            printlog(trackid, classid, ailevel, aitime)
-            printlog(class.minAI, class.maxAI)
+            iterate3(aientries, function(aiindex, aikey, aicustom)
+              local ailevel = tonumber(aikey[1])
+              local aitime  = tonumber(aicustom[1][1])
+              
+              class.minAI = math.min(ailevel, class.minAI or ailevel)
+              class.maxAI = math.max(ailevel, class.maxAI or ailevel)
+              
+              if (false and classid == "3375") then          
+                printlog(trackid, classid, ailevel, aitime)
+                printlog(class.minAI, class.maxAI)
+              end
+              local times = track.ailevels[ailevel] or {}
+              track.ailevels[ailevel] = times
+              
+              local num = #times
+              
+              local found = false
+              for i=1,num do
+                if (times[i] == aitime) then 
+                  found = true
+                end
+              end
+              if not found then 
+                table.insert(times, aitime)
+              end
+            end)
           end
-          local times = track.ailevels[ailevel] or {}
-          track.ailevels[ailevel] = times
-          
-          local num = #times
-          
-          local found = false
-          for i=1,num do
-            if (times[i] == aitime) then 
-              found = true
-            end
-          end
-          if not found then 
-            table.insert(times, aitime)
-          end
-        end)
-      end
-      
-    end)
-    
+        end
+      end)
+    end
   end)
   
 end
