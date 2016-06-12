@@ -118,6 +118,33 @@ local function DiffTime(stra, strb)
   
 end
 
+-------------------------------------------------------------------------------------
+--
+
+local function outputTime(time)
+  return string.format("%.8f", time):sub(1,-5).."0005"
+end
+
+local function computeTime(times)
+  local avgtime  = 0
+  local variance = 0
+  local num = times and #times or 0
+  if (num < 1) then return 0,0,0 end
+  
+  for i=1,num do
+    avgtime = tonumber(times[i]) + avgtime
+  end
+  
+  avgtime = avgtime / num
+  local variance = 0
+  for i=1,num do
+    local diff = tonumber(times[i]) - avgtime
+    variance = variance + diff*diff
+  end
+  variance = math.sqrt(variance)
+  
+  return num, avgtime, variance
+end
 
 -------------------------------------------------------------------------------------
 --
@@ -252,21 +279,9 @@ local function GenerateStatsHTML(outfilename,database)
     local found = 0
     for ai = minAI, maxAI do
       local times = track.ailevels[ai] or {}
-      local avgtime  = 0
-      local variance = 0
-      local num = #times
+      local num,avgtime,variance = computeTime(times)
       local aitime 
-      for i=1,num do
-        avgtime = times[i] + avgtime
-      end
       if (num > 0) then
-        avgtime = avgtime / num
-        local variance = 0
-        for i=1,num do
-          local diff = times[i]-avgtime
-          variance = variance + diff*diff
-        end
-        variance = math.sqrt(variance)
         aitime = MakeTime(avgtime)..'<br><span class="minor">'..string.format("%.3f / %d", variance, num).."</span>"
         
         totalTimes   = totalTimes + num
@@ -409,6 +424,8 @@ local function ParseAdaptive(filename, database)
   
   local tracklist = xml.AiAdaptation.custom
   
+  local added = false
+  
   iterate3(tracklist, function(trackindex, trackkey, trackvalue)
     local trackid = trackkey[1]
     
@@ -426,11 +443,16 @@ local function ParseAdaptive(filename, database)
             class.tracks[trackid] = track
           
             iterate3(aientries, function(aiindex, aikey, aicustom)
+              local aitime = aicustom[1][1]
+              if (aitime:match("000.$")) then return end
+              
               local ailevel = tonumber(aikey[1])
-              local aitime  = tonumber(aicustom[1][1])
               
               class.minAI = math.min(ailevel, class.minAI or ailevel)
               class.maxAI = math.max(ailevel, class.maxAI or ailevel)
+              
+              track.minAI = math.min(ailevel, track.minAI or ailevel)
+              track.maxAI = math.max(ailevel, track.maxAI or ailevel)
               
               if (false and classid == "3375") then          
                 printlog(trackid, classid, ailevel, aitime)
@@ -448,6 +470,7 @@ local function ParseAdaptive(filename, database)
                 end
               end
               if not found then 
+                added = true
                 table.insert(times, aitime)
               end
             end)
@@ -457,32 +480,199 @@ local function ParseAdaptive(filename, database)
     end
   end)
   
+  return added
 end
 
-require("wx")
+local matrix = require "matrix"
 
-local function RegenerateDatabaseHTML()
-  printlog("rebuilding database")
+-- function to get the results
+local function getresults( mtx )
+  assert( #mtx+1 == #mtx[1], "Cannot calculate Results" )
+  mtx:dogauss()
+  -- tresults
+  local cols = #mtx[1]
+  local tres = {}
+  for i = 1,#mtx do
+    tres[i] = mtx[i][cols]
+  end
+  return unpack( tres )
+end
+
+-- fit.linear ( x_values, y_values )
+-- fit a straight line
+-- model (  y = a + b * x  )
+-- returns a, b
+local function fitlinear( x_values,y_values )
+  -- x_values = { x1,x2,x3,...,xn }
+  -- y_values = { y1,y2,y3,...,yn }
   
-  local database = {classes = {}}
+  -- values for A matrix
+  local a_vals = {}
+  -- values for Y vector
+  local y_vals = {}
+
+  for i,v in ipairs( x_values ) do
+    a_vals[i] = { 1, v }
+    y_vals[i] = { y_values[i] }
+  end
+
+  -- create both Matrixes
+  local A = matrix:new( a_vals )
+  local Y = matrix:new( y_vals )
+
+  local ATA = matrix.mul( matrix.transpose(A), A )
+  local ATY = matrix.mul( matrix.transpose(A), Y )
+
+  local ATAATY = matrix.concath(ATA,ATY)
+
+  return getresults( ATAATY )
+end
+
+-- fit.parabola ( x_values, y_values )
+-- Fit a parabola
+-- model (  y = a + b * x + c * x² )
+-- returns a, b, c
+local function fitparabola( x_values,y_values )
+  -- x_values = { x1,x2,x3,...,xn }
+  -- y_values = { y1,y2,y3,...,yn }
+
+  -- values for A matrix
+  local a_vals = {}
+  -- values for Y vector
+  local y_vals = {}
+
+  for i,v in ipairs( x_values ) do
+    a_vals[i] = { 1, v, v*v }
+    y_vals[i] = { y_values[i] }
+  end
+
+  -- create both Matrixes
+  local A = matrix:new( a_vals )
+  local Y = matrix:new( y_vals )
+
+  local ATA = matrix.mul( matrix.transpose(A), A )
+  local ATY = matrix.mul( matrix.transpose(A), Y )
+
+  local ATAATY = matrix.concath(ATA,ATY)
+
+  return getresults( ATAATY )
+end
+
+local function trackGenerator(classid, trackid, track)
+  if (track.maxAI - track.minAI < cfg.testMinAIdiffs) then return end
+  local minNum,minTime,minVar = computeTime(track.ailevels[ track.minAI ])
+  
+  local x = {}
+  local y = {}
+  for i= track.minAI,track.maxAI do
+    local num,time,var = computeTime(track.ailevels[ i ])
+    if (num > 0) then
+      table.insert(x, i)
+      table.insert(y, time)
+    end
+  end
+  
+  local a,b,c = fitparabola(x,y)
+  
+  local tested = 0
+  local passed = 0
+  local threshold = minTime * cfg.testMaxTimePct
+  for i= track.minAI,track.maxAI do
+    local num,time,var = computeTime(track.ailevels[ i ])
+    if (num > 0) then
+      tested = tested + 1
+      local base = a + b * i + c * (i*i)
+      local diff = math.abs(base - time)
+      if (diff < threshold) then
+        passed = passed + 1
+      end
+    end
+  end
+  
+  local accepted = tested - passed <= math.max(1,tested * cfg.testMaxFailsPct)
+  if (not accepted) then
+    printlog("track fails fit", "outliers", tested - passed, "class", classid, "track", trackid)
+  end
+  
+  return accepted and {a=a,b=b,c=c}
+end
+
+local function processDatabase(database)
+  -- find track/car combos where we can derive ailevels
+  
+  local filtered = {classes ={} }
+  
+  for classid,class in pairs(database.classes) do
+    for trackid,track in pairs(class.tracks) do
+      local gen = trackGenerator(classid, trackid, track)
+      if (gen) then
+        local classf = filtered.classes[classid] or {tracks={}}
+        filtered.classes[classid] = classf
+        
+        classf.minAI = 80
+        classf.maxAI = 120
+        
+        local ailevels = {}
+        for i=80,120 do
+          ailevels[i] = { outputTime(gen.a + gen.b * i + gen.c * i * i) }
+        end
+        
+        local trackf =  {}
+        classf.tracks[trackid] = trackf
+        
+        trackf.minAI = 80
+        trackf.maxAI = 120
+        trackf.ailevels = ailevels
+        
+        trackf.generator = generator
+      end
+    end
+  end
+  
+  return filtered
+end
+
+
+require("wx")
+local serpent = require("serpent")
+
+local database =  {classes = {}}
+do
+  local f = io.open(cfg.outdir..cfg.databasefile,"rt")
+  if (f) then
+    local dbstr = f:read("*a")
+    f:close()
+    local ok,db = serpent.load(dbstr)
+    if (ok and db and db.classes) then
+      database = db
+    end
+  end
+end
+
+local function appendSeeds()
+  printlog("appending seeds")
   
   -- iterate lua files
   local path = wx.wxGetCwd().."/"..cfg.seeddir
   local dir = wx.wxDir(path)
   local found, file = dir:GetFirst("*.xml", wx.wxDIR_FILES)
+  local dirty = false
   while found do
-    ParseAdaptive(cfg.seeddir..file, database)
+    dirty = ParseAdaptive(cfg.seeddir..file, database)
     
     found, file = dir:GetNext()
   end
   
-  GenerateStatsHTML(cfg.outdir..cfg.resultfile, database)
+  if (dirty) then
+    GenerateStatsHTML(cfg.outdir..cfg.reportfile, database)
+    
+    local f = io.open(cfg.outdir..cfg.databasefile,"wt")
+    f:write( serpent.dump(database) )
+    f:close()
+  end
 end
 
-if (false) then
-  local database = {classes = {} }
-  ParseAdaptive(cfg.seeddir.."aiadaptation (3).xml", database)
-  GenerateStatsHTML(cfg.outdir..cfg.resultfile, database)
-else
-  RegenerateDatabaseHTML()
-end
+appendSeeds()
+
+local processed = processDatabase(database)
+GenerateStatsHTML(cfg.outdir..cfg.processedfile, processed)
