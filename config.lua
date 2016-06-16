@@ -11,6 +11,8 @@ seeddir       = "seeds/"
 outdir        = "results/"
 databasefile  = "database.lua"
 
+-- curve fitting
+fitAll = true -- uses all samples, otherwise uses average
 -- plausibility
 -- we compare an interpolated value with recorded values
 -- if recorded is within threshold to computed we think our data for the track is sane
