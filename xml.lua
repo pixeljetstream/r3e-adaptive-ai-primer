@@ -49,16 +49,7 @@ end
 
 local function parse(txt)
   local xml = collectXML(txt)
-  local function labellink(obj)
-    for i,v in ipairs(obj) do
-      if (type(v) == "table" and v.label) then
-        obj[v.label] = v
-        labellink(v)
-      end
-    end
-  end
   
-  labellink(xml)
   return xml
 end
 

@@ -17,8 +17,8 @@ fitAll = true -- uses all samples, otherwise uses average
 -- we compare an interpolated value with recorded values
 -- if recorded is within threshold to computed we think our data for the track is sane
 testMaxTimePct   = 0.05  -- percentage (1.0 = 100%) of fastest time we have
-testMaxFailsPct  = 0.33  -- how many outliers we accept per track (min is 1)
-testMinAIdiffs   = 3     -- how far away the extreme AI levels we have for a track must be at least
+testMaxFailsPct  = 0.20  -- how many outliers we accept per track (min is 1)
+testMinAIdiffs   = 4     -- how far away the extreme AI levels we have for a track must be at least
 
 -- for now only USER_DOCUMENTS is a special variable
 targetfile   = [[$USER_DOCUMENTS$\My Games\SimBin\RaceRoom Racing Experience\UserData\Player1\aiadaptation.xml]]

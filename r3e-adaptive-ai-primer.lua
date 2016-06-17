@@ -26,21 +26,21 @@ local cmdlineargs = {...}
 
 local cfg = {}
 
-local function loadConfigString(string)
+local function execEnvString(string, env)
   local fn,err = loadstring(string)
   assert(fn, err)
-  fn = setfenv(fn, cfg)
+  fn = setfenv(fn, env)
   fn()
 end
 
-local function loadConfig(filename)
+local function execEnv(filename, env)
   local fn,err = loadfile(filename)
   assert(fn, err)
-  fn = setfenv(fn, cfg)
+  fn = setfenv(fn, env)
   fn()
 end
 
-loadConfig("config.lua")
+execEnv("config.lua", cfg)
 
 -------------------------------------------------------------------------------------
 --
@@ -360,6 +360,15 @@ end
 
 local lxml = dofile("xml.lua")
 
+local function labellink(obj)
+  for i,v in ipairs(obj) do
+    if (type(v) == "table" and v.label) then
+      obj[v.label] = v
+      labellink(v)
+    end
+  end
+end
+
 local function ParseAdaptive(filename, database)
   local f = io.open(filename,"rt")
   if (not f) then 
@@ -373,40 +382,43 @@ local function ParseAdaptive(filename, database)
   f:close()
   
   local xml = lxml.parse(txt)
+  labellink(xml)
   
   if (not xml) then 
     printlog("could not decode")
     return
   end
   
-  --[[
-  <AiAdaptation ID="/aiadaptation">
-    <latestVersion type="uint32">0</latestVersion>
-    <custom>
+--[[
+<AiAdaptation ID="/aiadaptation">
+  <latestVersion type="uint32">0</latestVersion>
+  <custom>
+    <!-- Index:0 -->
+    <key type="int32">263</key>
+    <value>
       <!-- Index:0 -->
-      <key type="int32">263</key>
-      <value>
-        <!-- Index:0 -->
-        <key type="int32">253</key>
+      <key type="int32">253</key>
+      <custom>
         <custom>
+          <!-- Index:0 -->
+          <custom type="float32">108.74433136</custom>
+          <!-- Index:1 -->
+          <custom type="float32">115.84943390</custom>
+          <!-- Index:2 -->
+          <custom type="float32">123.27467346</custom>
+        </custom>
+        <custom>
+          <!-- Index:0 -->
+          <key type="uint32">100</key>
           <custom>
-            <!-- Index:0 -->
-            <custom type="float32">108.74433136</custom>
-            <!-- Index:1 -->
-            <custom type="float32">115.84943390</custom>
-            <!-- Index:2 -->
-            <custom type="float32">123.27467346</custom>
-          </custom>
-          <custom>
-            <!-- Index:0 -->
-            <key type="uint32">100</key>
-            <custom>
-              <custom type="float32">108.44427490</custom>
-              <custom type="uint32">2</custom>
-            </custom>
+            <custom type="float32">108.44427490</custom>
+            <custom type="uint32">2</custom>
           </custom>
         </custom>
-  ]]
+      </custom>
+      ...
+    </value>
+]]
   
   local function iterate3(tab, fn)
     local num = tab and #tab or 0
@@ -712,7 +724,7 @@ local function appendSeeds()
   local found, file = dir:GetFirst("*.xml", wx.wxDIR_FILES)
   local dirty = false
   while found do
-    dirty = ParseAdaptive(cfg.seeddir..file, database)
+    dirty = ParseAdaptive(cfg.seeddir..file, database) or dirty
     
     found, file = dir:GetNext()
   end
@@ -730,3 +742,122 @@ appendSeeds()
 
 local processed = processDatabase(database)
 GenerateStatsHTML(cfg.outdir..cfg.processedfile, processed)
+
+
+local function modifyAdaptive(filename, processed, trackid, classid, aifrom, aito, aispacing)
+  
+  local class = processed.classes[classid]
+  if (not class) then
+    printlog("processed class not found", classid)
+    return
+  end
+  local track = class.tracks[trackid]
+  if (not track) then
+    printlog("processed track not found", trackid)
+    return
+  end
+--[[
+<AiAdaptation ID="/aiadaptation">
+  <latestVersion type="uint32">0</latestVersion>
+  <custom>
+    <!-- Index:0 -->
+    <key type="int32">263</key>
+    <value>
+      <!-- Index:0 -->
+      <key type="int32">253</key>
+      <custom>
+        <custom>
+          <!-- Index:0 -->
+          <custom type="float32">108.74433136</custom>
+          <!-- Index:1 -->
+          <custom type="float32">115.84943390</custom>
+          <!-- Index:2 -->
+          <custom type="float32">123.27467346</custom>
+        </custom>
+        <custom>
+          <!-- Index:0 -->
+          <key type="uint32">100</key>
+          <custom>
+            <custom type="float32">108.44427490</custom>
+            <custom type="uint32">2</custom>
+          </custom>
+        </custom>
+      </custom>
+      ...
+    </value>
+]]
+  local f = io.open(filename,"rt")
+  local xml = f:read("*a")
+  f:close()
+  
+  local found = false
+  
+  local xmlnew = xml:gsub('(<key type="int32">'..trackid..'</key>%s*<value>)(.-)(</value>)', 
+  function(tpre,tracks,tpost)
+    local tracks = tracks:gsub('(<key type="int32">'..classid..'</key>\n%s*<custom>\n)(.-)(\n      </custom>)',
+    function(cpre,class,cpost)
+      local class = class:gsub('(</custom>%s*<custom>)(.*)(\n%s*</custom>)$',
+      function(apre,aold,apost)
+        local anew = ""
+        local indent = string.rep(' ',10)
+        
+        found = true
+        
+        local idx = 0
+        for ai=aifrom,aito,aispacing do
+          local num,time = computeTime(track.ailevels[ai])
+          if (num > 0) then
+            anew = anew.."\n"
+            anew = anew..indent..'<!-- Index:'..idx..' -->\n'
+            anew = anew..indent..'<key type="uint32">'..ai..'</key>\n'
+            anew = anew..indent..'<custom>\n'
+            anew = anew..indent..'  <custom type="float32">'..outputTime(time)..'</custom>\n'
+            anew = anew..indent..'  <custom type="uint32">0</custom>\n'
+            anew = anew..indent..'</custom>'
+            idx = idx + 1
+          end
+        end
+        
+        return apre..anew..apost
+      end)
+      return cpre..class..cpost
+    end)
+    return tpre..tracks..tpost
+  end)
+
+  if (found) then
+    printlog("modifying ai file", "track",trackid,"class", classid, filename)
+    local f = io.open(filename,"wt")
+    f:write(xmlnew)
+    f:close()
+  else
+    printlog("could not find","track", trackid, "class", classid)
+  end
+end
+
+local function specialFilename(filename)
+  local replacedirs = {
+    USER_DOCUMENTS = wx.wxStandardPaths.Get():GetDocumentsDir(),
+  }
+  
+  filename = filename:gsub("%$([%w_]+)%$", replacedirs)
+  return filename
+end
+
+local editenv = {
+  specialFilename = specialFilename,
+  modifyAdaptive = modifyAdaptive,
+  processed = processed,
+  database = database,
+  print = printlog,
+}
+
+local argcnt = #cmdlineargs
+if (argcnt > 0) then
+  for i=1,argcnt do
+    local arg = cmdlineargs[i]
+    if arg:match(".lua$") then
+      execEnv(arg, editenv)
+    end
+  end
+end
