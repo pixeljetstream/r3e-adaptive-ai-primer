@@ -31,7 +31,7 @@ Check the "config.lua" file for some of the influence on the fitting/plausibilit
 ### Modifying your AI file via UI
 * Run the tool (it will print some command-line stuff)
 * Select the type of car and class you want to modify as well as the target ai level (not all are available, it depends on the database and how it was processed)
-* '''Warning:''' The existing ai levels for the track/class you are editing will be overwritten in your aiadaptation.xml file, make backups! Double check on classid and trackid!
+* **Warning:** The existing ai levels for the track/class you are editing will be overwritten in your aiadaptation.xml file, make backups! Double check on classid and trackid!
 * The modification is mentioned in the label above the button. The actual number of ai levels and their "spacing" (say 92,94,96) are set via the config file at the bottom.
 * By pressing the "Apply" button your settings for that track/class will be overwritten
 
@@ -41,5 +41,5 @@ Check the "config.lua" file for some of the influence on the fitting/plausibilit
 * Run the tool (it will print some command-line stuff)
 * Look at the "results/processed.html", find the AI levels you want to race against.
 * Modify the "edits.lua" file to your liking. It does contain comments what to do. You will need the classid in "()" behind car class, and the trackid numbers and provide them as "strings" to the functions.
-* '''Warning:''' The existing ai levels for the track/class you are editing will be overwritten in your aiadaptation.xml file, make backups! Double check on classid and trackid!
+* **Warning:** The existing ai levels for the track/class you are editing will be overwritten in your aiadaptation.xml file, make backups! Double check on classid and trackid!
 * pass the "edits.lua" file to the exe (command-line or drag and drop), it will then perform all edits you defined within it.
