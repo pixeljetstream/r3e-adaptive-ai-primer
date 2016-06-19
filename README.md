@@ -9,7 +9,7 @@ How the system works was reverse engineered [here](https://forum.sector3studios.
 
 USE AT YOUR OWN RISK
 
-![ui](https://github.com/pixeljetstream/r3e-adaptive-ai-primer/blob/master/doc/ui.png)
+![ui](https://raw.githubusercontent.com/pixeljetstream/r3e-adaptive-ai-primer/master/docs/ui.png)
 
 ## Work in progress
 
