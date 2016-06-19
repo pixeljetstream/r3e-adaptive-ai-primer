@@ -84,13 +84,14 @@ local function ParseTime(str)
   if (m and s) then return m*60 + s end
 end
 
-local function MakeTime(s)
+local function MakeTime(s, sep)
+  local sep = sep or ":"
   local h = math.floor(s/3600)
   s = s - h*3600
   local m = math.floor(s/60)
   s = s - m*60
   
-  return (h > 0 and tostring(h)..":" or "")..tostring(m)..":"..string.format("%.4f",s)
+  return (h > 0 and tostring(h)..sep or "")..tostring(m)..sep..string.format("%#07.4f",s)
 end
 
 local function DiffTime(stra, strb)
@@ -369,13 +370,13 @@ local function labellink(obj)
   end
 end
 
-local function ParseAdaptive(filename, database)
+local function parseAdaptive(filename, database)
   local f = io.open(filename,"rt")
   if (not f) then 
-    printlog("race file not openable")
+    printlog("adaptive file not openable")
     return
   else
-    printlog("parsing", filename)
+    printlog("apdative file parsing", filename)
   end
   
   local txt = f:read("*a")
@@ -501,6 +502,133 @@ local function ParseAdaptive(filename, database)
   end)
   
   return added
+end
+
+local function clearAdaptive(filename)
+  local f = io.open(filename,"rt")
+  assert(f,"file not found: "..filename)
+  local xml = f:read("*a")
+  f:close()
+--[[
+          <!-- Index:0 -->
+          <key type="uint32">97</key>
+          <custom>
+            <custom type="float32">92.45950005</custom>
+            <custom type="uint32">0</custom>
+          </custom>
+]]
+  
+  
+  local xml,num = xml:gsub(
+      '[^\n]+<!%-%- Index:%d+ %-%->%s+'..
+      '<key type="uint32">%d+</key>%s+'..
+      '<custom>%s+'..
+      '  <custom type="float32">%d?%d%d%.%d%d%d%d000[4-6]</custom>%s+'..
+      '  <custom type="uint32">%d+</custom>%s+'..
+      '</custom>\n' 
+    , function(str)
+      --printlog(str)
+      return ""
+  end)
+  
+  if (num > 0) then
+    printlog("cleared generated ai file", filename, num)
+    local f = io.open(filename,"wt")
+    f:write(xml)
+    f:close()
+  end
+end
+
+local function modifyAdaptive(filename, processed, trackid, classid, aifrom, aito, aispacing)
+  
+  local class = processed.classes[classid]
+  if (not class) then
+    printlog("processed class not found", classid)
+    return
+  end
+  local track = class.tracks[trackid]
+  if (not track) then
+    printlog("processed track not found", trackid)
+    return
+  end
+--[[
+<AiAdaptation ID="/aiadaptation">
+  <latestVersion type="uint32">0</latestVersion>
+  <custom>
+    <!-- Index:0 -->
+    <key type="int32">263</key>
+    <value>
+      <!-- Index:0 -->
+      <key type="int32">253</key>
+      <custom>
+        <custom>
+          <!-- Index:0 -->
+          <custom type="float32">108.74433136</custom>
+          <!-- Index:1 -->
+          <custom type="float32">115.84943390</custom>
+          <!-- Index:2 -->
+          <custom type="float32">123.27467346</custom>
+        </custom>
+        <custom>
+          <!-- Index:0 -->
+          <key type="uint32">100</key>
+          <custom>
+            <custom type="float32">108.44427490</custom>
+            <custom type="uint32">2</custom>
+          </custom>
+        </custom>
+      </custom>
+      ...
+    </value>
+]]
+  local f = io.open(filename,"rt")
+  assert(f,"file not found: "..filename)
+  local xml = f:read("*a")
+  f:close()
+  
+  local found = false
+  
+  local xmlnew = xml:gsub('(<key type="int32">'..trackid..'</key>%s*<value>)(.-)(</value>)', 
+  function(tpre,tracks,tpost)
+    local tracks = tracks:gsub('(<key type="int32">'..classid..'</key>\n%s*<custom>\n)(.-)(\n      </custom>)',
+    function(cpre,class,cpost)
+      local class = class:gsub('(</custom>%s*<custom>)(.*)(\n%s*</custom>)$',
+      function(apre,aold,apost)
+        local anew = ""
+        local indent = string.rep(' ',10)
+        
+        found = true
+        
+        local idx = 0
+        for ai=aifrom,aito,aispacing do
+          local num,time = computeTime(track.ailevels[ai])
+          if (num > 0) then
+            anew = anew.."\n"
+            anew = anew..indent..'<!-- Index:'..idx..' -->\n'
+            anew = anew..indent..'<key type="uint32">'..ai..'</key>\n'
+            anew = anew..indent..'<custom>\n'
+            anew = anew..indent..'  <custom type="float32">'..outputTime(time)..'</custom>\n'
+            anew = anew..indent..'  <custom type="uint32">0</custom>\n'
+            anew = anew..indent..'</custom>'
+            idx = idx + 1
+          end
+        end
+        
+        return apre..anew..apost
+      end)
+      return cpre..class..cpost
+    end)
+    return tpre..tracks..tpost
+  end)
+
+  if (found) then
+    printlog("modified ai file", "track",trackid,"class", classid, filename)
+    local f = io.open(filename,"wt")
+    f:write(xmlnew)
+    f:close()
+  else
+    printlog("could not find","track", trackid, "class", classid)
+  end
 end
 
 local matrix = require "matrix"
@@ -698,6 +826,7 @@ local function processDatabase(database)
   return filtered
 end
 
+---------------------------------------------
 
 require("wx")
 local serpent = require("serpent")
@@ -715,6 +844,15 @@ do
   end
 end
 
+local function specialFilename(filename)
+  local replacedirs = {
+    USER_DOCUMENTS = wx.wxStandardPaths.Get():GetDocumentsDir(),
+  }
+  
+  filename = filename:gsub("%$([%w_]+)%$", replacedirs)
+  return filename
+end
+
 local function appendSeeds()
   printlog("appending seeds")
   
@@ -723,8 +861,12 @@ local function appendSeeds()
   local dir = wx.wxDir(path)
   local found, file = dir:GetFirst("*.xml", wx.wxDIR_FILES)
   local dirty = false
+  
+  local targetfile = specialFilename(cfg.targetfile)
+  dirty = parseAdaptive(targetfile, database)
+  
   while found do
-    dirty = ParseAdaptive(cfg.seeddir..file, database) or dirty
+    dirty = parseAdaptive(cfg.seeddir..file, database) or dirty
     
     found, file = dir:GetNext()
   end
@@ -738,115 +880,18 @@ local function appendSeeds()
   end
 end
 
+
 appendSeeds()
 
 local processed = processDatabase(database)
 GenerateStatsHTML(cfg.outdir..cfg.processedfile, processed)
 
 
-local function modifyAdaptive(filename, processed, trackid, classid, aifrom, aito, aispacing)
-  
-  local class = processed.classes[classid]
-  if (not class) then
-    printlog("processed class not found", classid)
-    return
-  end
-  local track = class.tracks[trackid]
-  if (not track) then
-    printlog("processed track not found", trackid)
-    return
-  end
---[[
-<AiAdaptation ID="/aiadaptation">
-  <latestVersion type="uint32">0</latestVersion>
-  <custom>
-    <!-- Index:0 -->
-    <key type="int32">263</key>
-    <value>
-      <!-- Index:0 -->
-      <key type="int32">253</key>
-      <custom>
-        <custom>
-          <!-- Index:0 -->
-          <custom type="float32">108.74433136</custom>
-          <!-- Index:1 -->
-          <custom type="float32">115.84943390</custom>
-          <!-- Index:2 -->
-          <custom type="float32">123.27467346</custom>
-        </custom>
-        <custom>
-          <!-- Index:0 -->
-          <key type="uint32">100</key>
-          <custom>
-            <custom type="float32">108.44427490</custom>
-            <custom type="uint32">2</custom>
-          </custom>
-        </custom>
-      </custom>
-      ...
-    </value>
-]]
-  local f = io.open(filename,"rt")
-  local xml = f:read("*a")
-  f:close()
-  
-  local found = false
-  
-  local xmlnew = xml:gsub('(<key type="int32">'..trackid..'</key>%s*<value>)(.-)(</value>)', 
-  function(tpre,tracks,tpost)
-    local tracks = tracks:gsub('(<key type="int32">'..classid..'</key>\n%s*<custom>\n)(.-)(\n      </custom>)',
-    function(cpre,class,cpost)
-      local class = class:gsub('(</custom>%s*<custom>)(.*)(\n%s*</custom>)$',
-      function(apre,aold,apost)
-        local anew = ""
-        local indent = string.rep(' ',10)
-        
-        found = true
-        
-        local idx = 0
-        for ai=aifrom,aito,aispacing do
-          local num,time = computeTime(track.ailevels[ai])
-          if (num > 0) then
-            anew = anew.."\n"
-            anew = anew..indent..'<!-- Index:'..idx..' -->\n'
-            anew = anew..indent..'<key type="uint32">'..ai..'</key>\n'
-            anew = anew..indent..'<custom>\n'
-            anew = anew..indent..'  <custom type="float32">'..outputTime(time)..'</custom>\n'
-            anew = anew..indent..'  <custom type="uint32">0</custom>\n'
-            anew = anew..indent..'</custom>'
-            idx = idx + 1
-          end
-        end
-        
-        return apre..anew..apost
-      end)
-      return cpre..class..cpost
-    end)
-    return tpre..tracks..tpost
-  end)
-
-  if (found) then
-    printlog("modifying ai file", "track",trackid,"class", classid, filename)
-    local f = io.open(filename,"wt")
-    f:write(xmlnew)
-    f:close()
-  else
-    printlog("could not find","track", trackid, "class", classid)
-  end
-end
-
-local function specialFilename(filename)
-  local replacedirs = {
-    USER_DOCUMENTS = wx.wxStandardPaths.Get():GetDocumentsDir(),
-  }
-  
-  filename = filename:gsub("%$([%w_]+)%$", replacedirs)
-  return filename
-end
 
 local editenv = {
   specialFilename = specialFilename,
   modifyAdaptive = modifyAdaptive,
+  clearAdaptive = clearAdaptive,
   processed = processed,
   database = database,
   print = printlog,
@@ -864,6 +909,11 @@ if (argcnt > 1) then
   return
 end
 
+-- debug
+if (false) then
+  clearAdaptive(specialFilename(cfg.targetfile))
+  return
+end
 
 function main()
   -- create the frame window
@@ -904,11 +954,13 @@ function main()
   
   local lblfile = wx.wxStaticText(winUpper, wx.wxID_ANY, "R3E adaptive AI file found:\n"..targetfile, wx.wxPoint(8,8),  wx.wxSize(ww,30) )
   local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww,16) )
-  local btnapply =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),     wx.wxSize(200,20))
+  local btnapply  =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),        wx.wxSize(200,20))
+  local btnremove =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove all likely generated",         wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
  
   winUpper.lblfile = lblfile
   winUpper.lblmod  = lblmod
   winUpper.btnapply = btnapply
+  winUpper.binremove = btnremove
   
   local class 
   local classid
@@ -918,6 +970,10 @@ function main()
   local aito
   local aiNumLevels = cfg.aiNumLevels
   local aiSpacing   = cfg.aiSpacing
+  
+  btnremove:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
+    clearAdaptive(targetfile)
+  end)
   
   btnapply:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
     if (classid and trackid and ailevel) then
@@ -940,8 +996,8 @@ function main()
   local ctrlAI = wx.wxListCtrl(winLower, wx.wxID_ANY,
                           wx.wxPoint(8+300+300,8), wx.wxSize(200,700),
                           wx.wxLC_REPORT)
-  ctrlAI:InsertColumn(0, "AI level")
-  ctrlAI:InsertColumn(1, "AI time")
+  ctrlAI:InsertColumn(0, "AI")
+  ctrlAI:InsertColumn(1, "time")
   ctrlAI:SetColumnWidth(0,30)
   ctrlAI:SetColumnWidth(1,150)
   
@@ -995,7 +1051,7 @@ function main()
         local num,time = computeTime(track.ailevels[ai])
         if (num > 0) then
           ctrlAI:InsertItem(i, tostring(ai))
-          ctrlAI:SetItem(i, 1, MakeTime(time))
+          ctrlAI:SetItem(i, 1, MakeTime(time, " : "))
           table.insert(ailevels, ai)
           i = i + 1
           ailevel = ailevel or ai
