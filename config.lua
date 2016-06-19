@@ -20,6 +20,8 @@ testMaxTimePct   = 0.05  -- percentage (1.0 = 100%) of fastest time we have
 testMaxFailsPct  = 0.20  -- how many outliers we accept per track (min is 1)
 testMinAIdiffs   = 4     -- how far away the extreme AI levels we have for a track must be at least
 
+-- ui tool related
 -- for now only USER_DOCUMENTS is a special variable
 targetfile   = [[$USER_DOCUMENTS$\My Games\SimBin\RaceRoom Racing Experience\UserData\Player1\aiadaptation.xml]]
-
+aiNumLevels  = 5
+aiSpacing    = 1

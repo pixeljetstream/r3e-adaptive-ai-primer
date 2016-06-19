@@ -853,11 +853,189 @@ local editenv = {
 }
 
 local argcnt = #cmdlineargs
-if (argcnt > 0) then
+if (argcnt > 1) then
   for i=1,argcnt do
     local arg = cmdlineargs[i]
-    if arg:match(".lua$") then
+    if arg:find("r3e-adaptive-ai-primer.lua",1,true) then
+    elseif arg:match(".lua$") then
       execEnv(arg, editenv)
     end
   end
+  return
 end
+
+
+function main()
+  -- create the frame window
+  local ww = 820
+  local wh = 840
+  frame = wx.wxFrame( wx.NULL, wx.wxID_ANY, "R3E Apdative AI Primer",
+                      wx.wxDefaultPosition, wx.wxSize(ww+16, wh),
+                      wx.wxDEFAULT_FRAME_STYLE )
+
+  -- show the frame window
+  frame:Show(true)
+  
+  local panel = wx.wxPanel  ( frame, wx.wxID_ANY)
+  frame.panel = panel    
+  
+  local targetfile = specialFilename(cfg.targetfile)
+
+  if not targetfile or not wx.wxFileName(targetfile):FileExists() then
+    local label = wx.wxStaticText(panel, wx.wxID_ANY, "Could not find R3E adaptive AI file:\n"..tostring(targetfile))
+    frame.label = label
+    printlog("error")
+    return
+  end
+  
+  local winUpper  = wx.wxWindow ( panel, wx.wxID_ANY)
+  local winLower  = wx.wxWindow ( panel, wx.wxID_ANY)
+  -- Give the scrollwindow enough size so sizer works when calling Fit()
+  --winLower:SetScrollbars(15, 15, 400, 1000, 0, 0, false)
+
+  local sizer = wx.wxBoxSizer(wx.wxVERTICAL)
+  sizer:Add(winUpper, 0, wx.wxEXPAND)
+  sizer:Add(winLower, 0, wx.wxEXPAND)
+  panel:SetSizer(sizer)
+  
+  frame.sizer = sizer
+  frame.winUpper = winUpper
+  frame.winLower = winLower
+  
+  local lblfile = wx.wxStaticText(winUpper, wx.wxID_ANY, "R3E adaptive AI file found:\n"..targetfile, wx.wxPoint(8,8),  wx.wxSize(ww,30) )
+  local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww,16) )
+  local btnapply =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),     wx.wxSize(200,20))
+ 
+  winUpper.lblfile = lblfile
+  winUpper.lblmod  = lblmod
+  winUpper.btnapply = btnapply
+  
+  local class 
+  local classid
+  local trackid
+  local ailevel
+  local aifrom
+  local aito
+  local aiNumLevels = cfg.aiNumLevels
+  local aiSpacing   = cfg.aiSpacing
+  
+  btnapply:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
+    if (classid and trackid and ailevel) then
+      modifyAdaptive(targetfile, processed, trackid, classid, aifrom, aito, aiSpacing)
+    end
+  end)
+  
+  local ctrlClass = wx.wxListCtrl(winLower, wx.wxID_ANY,
+                          wx.wxPoint(8,8), wx.wxSize(300,700),
+                          wx.wxLC_REPORT)
+  ctrlClass:InsertColumn(0, "Classes")
+  ctrlClass:SetColumnWidth(0,280)
+  
+  local ctrlTrack = wx.wxListCtrl(winLower, wx.wxID_ANY,
+                          wx.wxPoint(8+300,8), wx.wxSize(300,700),
+                          wx.wxLC_REPORT)
+  ctrlTrack:InsertColumn(0, "Tracks")
+  ctrlTrack:SetColumnWidth(0,280)
+  
+  local ctrlAI = wx.wxListCtrl(winLower, wx.wxID_ANY,
+                          wx.wxPoint(8+300+300,8), wx.wxSize(200,700),
+                          wx.wxLC_REPORT)
+  ctrlAI:InsertColumn(0, "AI level")
+  ctrlAI:InsertColumn(1, "AI time")
+  ctrlAI:SetColumnWidth(0,30)
+  ctrlAI:SetColumnWidth(1,150)
+  
+  local classids = {}
+  local trackids = {}
+  local ailevels = {}
+  
+  local function updateClasses()
+    classid = nil
+    classids = {}
+    local i = 0
+    ctrlClass:DeleteAllItems()
+    for _,classasset in ipairs(assets.classesSorted) do
+      local class = processed.classes[classasset.id]
+      if (class) then
+        ctrlClass:InsertItem(i, classasset.name)
+        table.insert(classids, classasset.id)
+        i = i + 1
+        classid = classid or classasset.id
+      end
+    end
+    ctrlClass:SetItemState(0, wx.wxLIST_STATE_SELECTED, wx.wxLIST_STATE_SELECTED)
+  end
+  
+  local function updateTracks()
+    trackid = nil
+    trackids = {}
+    local i = 0
+    ctrlTrack:DeleteAllItems()
+    for _,trackasset in ipairs(assets.tracksSorted) do
+      local track = processed.classes[classid].tracks[trackasset.id]
+      if (track) then
+        ctrlTrack:InsertItem(i, trackasset.name)
+        table.insert(trackids, trackasset.id)
+        i = i + 1
+        trackid = trackid or trackasset.id
+      end
+    end
+    ctrlTrack:SetItemState(0, wx.wxLIST_STATE_SELECTED, wx.wxLIST_STATE_SELECTED)
+  end
+  
+  local function updateAI()
+    if (not trackid) then return end
+    ailevel = nil
+    ailevels = {}
+    local i = 0
+    ctrlAI:DeleteAllItems()
+    local track = processed.classes[classid].tracks[trackid]
+    if (track) then
+      for ai=track.minAI,track.maxAI do
+        local num,time = computeTime(track.ailevels[ai])
+        if (num > 0) then
+          ctrlAI:InsertItem(i, tostring(ai))
+          ctrlAI:SetItem(i, 1, MakeTime(time))
+          table.insert(ailevels, ai)
+          i = i + 1
+          ailevel = ailevel or ai
+        end
+      end
+      ctrlAI:SetItemState(0, wx.wxLIST_STATE_SELECTED, wx.wxLIST_STATE_SELECTED)
+    end
+  end
+  
+  local function updateSelection()
+    aifrom = math.max( 80,ailevel - math.floor(aiNumLevels/2))
+    aito   = math.min(120,aifrom  + aiNumLevels - 1)
+    lblmod:SetLabel("Modification: "..assets.classes[classid].name.." - "..assets.tracks[trackid].name.." : "..aifrom.." - "..aito.." step: "..aiSpacing)
+  end
+  
+  updateClasses()
+  updateTracks()
+  updateAI()
+  updateSelection()
+  
+  ctrlClass:Connect(wx.wxEVT_COMMAND_LIST_ITEM_SELECTED, function (event)
+    local idx = event:GetIndex()
+    classid = classids[idx + 1]
+    updateTracks()
+  end)
+
+  ctrlTrack:Connect(wx.wxEVT_COMMAND_LIST_ITEM_SELECTED, function (event)
+    local idx = event:GetIndex()
+    trackid = trackids[idx + 1]
+    updateAI()
+  end)
+
+  ctrlAI:Connect(wx.wxEVT_COMMAND_LIST_ITEM_SELECTED, function (event)
+    local idx = event:GetIndex()
+    ailevel = ailevels[idx + 1]
+    updateSelection()
+  end)
+
+  sizer:Fit(panel)
+end
+
+main()
+wx.wxGetApp():MainLoop()
