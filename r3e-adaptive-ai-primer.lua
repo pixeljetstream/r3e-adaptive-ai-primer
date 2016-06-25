@@ -370,7 +370,7 @@ local function labellink(obj)
   end
 end
 
-local function parseAdaptive(filename, database)
+local function parseAdaptive(filename, database, playertimes)
   local f = io.open(filename,"rt")
   if (not f) then 
     printlog("adaptive file not openable")
@@ -445,9 +445,24 @@ local function parseAdaptive(filename, database)
     if (assets.tracks[trackid]) then
       iterate3( trackvalue, function(classindex, classkey, classcustom)
         local classid = classkey[1]
+        local playerentries = classcustom[1]
         local aientries = classcustom[2]
         
         if (assets.classes[classid]) then
+          if (playertimes and playerentries and #playerentries > 0) then
+            local class = playertimes.classes[classid] or {tracks={}}
+            local track = class.tracks[trackid] or {playertime=nil,}
+            class.tracks[trackid] = track
+            
+            local mintime = 1000000
+            iterate2(playerentries, function(playerindex, playercustom)
+              local playertime = tonumber(playercustom[1])
+              mintime = math.min(playertime, mintime)
+            end)
+            track.playertime = mintime
+            printlog("playertime found", assets.classes[classid].name, assets.tracks[trackid].name, mintime)
+          end
+          
           if (aientries and #aientries > 0) then
             local class = database.classes[classid] or {tracks={}}
             local track = class.tracks[trackid] or {ailevels={}}
@@ -832,6 +847,7 @@ require("wx")
 local serpent = require("serpent")
 
 local database =  {classes = {}}
+local playertimes =  {classes = {}}
 do
   local f = io.open(cfg.outdir..cfg.databasefile,"rt")
   if (f) then
@@ -863,7 +879,7 @@ local function appendSeeds()
   local dirty = false
   
   local targetfile = specialFilename(cfg.targetfile)
-  dirty = parseAdaptive(targetfile, database)
+  dirty = parseAdaptive(targetfile, database, playertimes)
   
   while found do
     dirty = parseAdaptive(cfg.seeddir..file, database) or dirty
@@ -953,12 +969,14 @@ function main()
   frame.winLower = winLower
   
   local lblfile = wx.wxStaticText(winUpper, wx.wxID_ANY, "R3E adaptive AI file found:\n"..targetfile, wx.wxPoint(8,8),  wx.wxSize(ww,30) )
-  local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww,16) )
+  local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww-150-8,16) )
+  local lblplayer = wx.wxStaticText(winUpper, wx.wxID_ANY, "Player:",                             wx.wxPoint(ww-8-150,50), wx.wxSize(150,16) )
   local btnapply  =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),        wx.wxSize(200,20))
   local btnremove =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove all likely generated",         wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
  
   winUpper.lblfile = lblfile
   winUpper.lblmod  = lblmod
+  winUpper.lblplayer = lblplayer
   winUpper.btnapply = btnapply
   winUpper.binremove = btnremove
   
@@ -1065,6 +1083,15 @@ function main()
     aifrom = math.max( 80,ailevel - math.floor(aiNumLevels/2))
     aito   = math.min(120,aifrom  + aiNumLevels - 1)
     lblmod:SetLabel("Modification: "..assets.classes[classid].name.." - "..assets.tracks[trackid].name.." : "..aifrom.." - "..aito.." step: "..aiSpacing)
+    
+    local palyerclass = playertimes and playertimes.classes[classid]
+    local playertrack = palyerclass and palyerclass.tracks[trackid]
+    if (playertrack and playertrack.playertime) then
+      lblplayer:SetLabel("Player: "..MakeTime(playertrack.playertime))
+    else
+      lblplayer:SetLabel("Player: no time found")
+    end
+    
   end
   
   updateClasses()
