@@ -451,6 +451,7 @@ local function parseAdaptive(filename, database, playertimes)
         if (assets.classes[classid]) then
           if (playertimes and playerentries and #playerentries > 0) then
             local class = playertimes.classes[classid] or {tracks={}}
+            playertimes.classes[classid] = class
             local track = class.tracks[trackid] or {playertime=nil,}
             class.tracks[trackid] = track
             
@@ -969,14 +970,13 @@ function main()
   frame.winLower = winLower
   
   local lblfile = wx.wxStaticText(winUpper, wx.wxID_ANY, "R3E adaptive AI file found:\n"..targetfile, wx.wxPoint(8,8),  wx.wxSize(ww,30) )
-  local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww-150-8,16) )
-  local lblplayer = wx.wxStaticText(winUpper, wx.wxID_ANY, "Player:",                             wx.wxPoint(ww-8-150,50), wx.wxSize(150,16) )
+  local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww-8,16) )
+  
   local btnapply  =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),        wx.wxSize(200,20))
   local btnremove =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove all likely generated",         wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
  
   winUpper.lblfile = lblfile
   winUpper.lblmod  = lblmod
-  winUpper.lblplayer = lblplayer
   winUpper.btnapply = btnapply
   winUpper.binremove = btnremove
   
@@ -1000,24 +1000,26 @@ function main()
   end)
   
   local ctrlClass = wx.wxListCtrl(winLower, wx.wxID_ANY,
-                          wx.wxPoint(8,8), wx.wxSize(300,700),
+                          wx.wxPoint(8,8), wx.wxSize(200,700),
                           wx.wxLC_REPORT)
   ctrlClass:InsertColumn(0, "Classes")
-  ctrlClass:SetColumnWidth(0,280)
+  ctrlClass:SetColumnWidth(0,190)
   
   local ctrlTrack = wx.wxListCtrl(winLower, wx.wxID_ANY,
-                          wx.wxPoint(8+300,8), wx.wxSize(300,700),
+                          wx.wxPoint(8+200,8), wx.wxSize(450,700),
                           wx.wxLC_REPORT)
   ctrlTrack:InsertColumn(0, "Tracks")
-  ctrlTrack:SetColumnWidth(0,280)
+  ctrlTrack:InsertColumn(1, "Player Best")
+  ctrlTrack:SetColumnWidth(0,340)
+  ctrlTrack:SetColumnWidth(1,100)
   
   local ctrlAI = wx.wxListCtrl(winLower, wx.wxID_ANY,
-                          wx.wxPoint(8+300+300,8), wx.wxSize(200,700),
+                          wx.wxPoint(8+200+450,8), wx.wxSize(150,700),
                           wx.wxLC_REPORT)
   ctrlAI:InsertColumn(0, "AI")
-  ctrlAI:InsertColumn(1, "time")
+  ctrlAI:InsertColumn(1, "Time")
   ctrlAI:SetColumnWidth(0,30)
-  ctrlAI:SetColumnWidth(1,150)
+  ctrlAI:SetColumnWidth(1,110)
   
   local classids = {}
   local trackids = {}
@@ -1050,6 +1052,13 @@ function main()
       if (track) then
         ctrlTrack:InsertItem(i, trackasset.name)
         table.insert(trackids, trackasset.id)
+        
+        local palyerclass = playertimes and playertimes.classes[classid]
+        local playertrack = palyerclass and palyerclass.tracks[trackasset.id]
+        if (playertrack and playertrack.playertime) then
+          ctrlTrack:SetItem(i, 1, MakeTime(playertrack.playertime, " : "))
+        end
+        
         i = i + 1
         trackid = trackid or trackasset.id
       end
@@ -1083,15 +1092,6 @@ function main()
     aifrom = math.max( 80,ailevel - math.floor(aiNumLevels/2))
     aito   = math.min(120,aifrom  + aiNumLevels - 1)
     lblmod:SetLabel("Modification: "..assets.classes[classid].name.." - "..assets.tracks[trackid].name.." : "..aifrom.." - "..aito.." step: "..aiSpacing)
-    
-    local palyerclass = playertimes and playertimes.classes[classid]
-    local playertrack = palyerclass and palyerclass.tracks[trackid]
-    if (playertrack and playertrack.playertime) then
-      lblplayer:SetLabel("Player: "..MakeTime(playertrack.playertime))
-    else
-      lblplayer:SetLabel("Player: no time found")
-    end
-    
   end
   
   updateClasses()
