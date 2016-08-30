@@ -62,11 +62,11 @@ Alle Aquila CR1 Cup-Wagen</option>
 <option value="252" data-image="http://game.raceroom.com/de/assets/content/carlivery/no-regrets-racing-1-257-image-thumb.webp">
 Aquila CR1 Sports GT</option>
 </optgroup>
-<optgroup label="Audi Sport TT Cup 2015">
+<optgroup label="Audi Sport TT Cup">
 <option value="class-4680">
-Alle Audi Sport TT Cup 2015-Wagen</option>
+Alle Audi Sport TT Cup-Wagen</option>
 <option value="4681" data-image="http://game.raceroom.com/de/assets/content/carlivery/audi-sport-89-4767-image-thumb.webp">
-Audi TT cup</option>
+Audi TT cup 2015</option>
 </optgroup>
 <optgroup label="DTM 1992">
 <option value="class-3499">
@@ -277,6 +277,12 @@ Canhard R52</option>
 Cougar C14-1</option>
 <option value="1753" data-image="http://game.raceroom.com/de/assets/content/carlivery/team-checkered-racing-14-1755-image-thumb.webp">
 Cougar C14-2</option>
+</optgroup>
+<optgroup label="Tatuus F4 Cup">
+<option value="class-4867">
+Alle Tatuus F4 Cup-Wagen</option>
+<option value="5051" data-image="http://game.raceroom.com/de/assets/content/carlivery/kw-automotive-22-5105-image-thumb.webp">
+Tatuus F4</option>
 </optgroup>
 <optgroup label="Touring Classics">
 <option value="class-1712">
