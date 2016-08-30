@@ -755,6 +755,12 @@ local function trackGenerator(classid, trackid, track)
     return a + b * t + c * (t*t)
   end
   
+  local function printfail(...)
+    printlog("track fails fit", ...)
+    printlog(" class", classid, assets.classes[classid].name)
+    printlog(" track", trackid, assets.tracks[trackid].name)
+  end
+  
   local tested = 0
   local passed = 0
   local threshold = minTime * cfg.testMaxTimePct
@@ -771,7 +777,7 @@ local function trackGenerator(classid, trackid, track)
         end
       end
       if (base > (lasttime or base)) then
-        printlog("track fails fit", "not monotonicly decreasing", "class", classid, "track", trackid)
+        printfail("not monotonically decreasing")
         return
       end
       lasttime = base
@@ -791,7 +797,7 @@ local function trackGenerator(classid, trackid, track)
         end
       end
       if (base > (lasttime or base)) then
-        printlog("track fails fit", "not monotonicly decreasing", "class", classid, "track", trackid)
+        printfail("not monotonically decreasing")
         return
       end
       lasttime = base
@@ -800,7 +806,7 @@ local function trackGenerator(classid, trackid, track)
   
   local accepted = tested - passed <= math.max(1,tested * cfg.testMaxFailsPct)
   if (not accepted) then
-    printlog("track fails fit", "outliers", tested - passed, "class", classid, "track", trackid)
+    printfail("outliers", tested - passed)
   end
   
   
