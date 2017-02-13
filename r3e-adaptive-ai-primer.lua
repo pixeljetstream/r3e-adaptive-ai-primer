@@ -555,6 +555,41 @@ local function clearAdaptive(filename)
   end
 end
 
+local function clearAdaptiveAll(filename)
+  local f = io.open(filename,"rt")
+  assert(f,"file not found: "..filename)
+  local xml = f:read("*a")
+  f:close()
+--[[
+          <!-- Index:0 -->
+          <key type="uint32">97</key>
+          <custom>
+            <custom type="float32">92.45950005</custom>
+            <custom type="uint32">0</custom>
+          </custom>
+]]
+  
+  
+  local xml,num = xml:gsub(
+      '[^\n]+<!%-%- Index:%d+ %-%->%s+'..
+      '<key type="uint32">%d+</key>%s+'..
+      '<custom>%s+'..
+      '  <custom type="float32">%d+%.%d+</custom>%s+'..
+      '  <custom type="uint32">%d+</custom>%s+'..
+      '</custom>\n' 
+    , function(str)
+      --printlog(str)
+      return ""
+  end)
+  
+  if (num > 0) then
+    printlog("cleared all ai file", filename, num)
+    local f = io.open(filename,"wt")
+    f:write(xml)
+    f:close()
+  end
+end
+
 local function modifyAdaptive(filename, processed, trackid, classid, aifrom, aito, aispacing)
   
   local class = processed.classes[classid]
@@ -915,6 +950,7 @@ local editenv = {
   specialFilename = specialFilename,
   modifyAdaptive = modifyAdaptive,
   clearAdaptive = clearAdaptive,
+  clearAdaptiveAll = clearAdaptiveAll,
   processed = processed,
   database = database,
   print = printlog,
@@ -979,7 +1015,8 @@ function main()
   local lblmod  = wx.wxStaticText(winUpper, wx.wxID_ANY, "Modification:",                             wx.wxPoint(8,50), wx.wxSize(ww-8,16) )
   
   local btnapply  =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),        wx.wxSize(200,20))
-  local btnremove =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove all likely generated",         wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
+  local btnremgen =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove likely generated",      wx.wxPoint(ww-8-240-240-4,70), wx.wxSize(240,20))
+  local btnremall =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove all AI times",          wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
  
   winUpper.lblfile = lblfile
   winUpper.lblmod  = lblmod
@@ -995,8 +1032,12 @@ function main()
   local aiNumLevels = cfg.aiNumLevels
   local aiSpacing   = cfg.aiSpacing
   
-  btnremove:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
+  btnremgen:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
     clearAdaptive(targetfile)
+  end)
+  
+  btnremall:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
+    clearAdaptiveAll(targetfile)
   end)
   
   btnapply:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
@@ -1038,7 +1079,8 @@ function main()
     ctrlClass:DeleteAllItems()
     for _,classasset in ipairs(assets.classesSorted) do
       local class = processed.classes[classasset.id]
-      if (class) then
+      local palyerclass = playertimes and playertimes.classes[classasset.id]
+      if (class or palyerclass) then
         ctrlClass:InsertItem(i, classasset.name)
         table.insert(classids, classasset.id)
         i = i + 1
@@ -1054,13 +1096,15 @@ function main()
     local i = 0
     ctrlTrack:DeleteAllItems()
     for _,trackasset in ipairs(assets.tracksSorted) do
-      local track = processed.classes[classid].tracks[trackasset.id]
-      if (track) then
+      local class = processed.classes[classid]
+      local track = class and class.tracks[trackasset.id]
+      local palyerclass = playertimes and playertimes.classes[classid]
+      local playertrack = palyerclass and palyerclass.tracks[trackasset.id]
+      if (track or playertrack) then
         ctrlTrack:InsertItem(i, trackasset.name)
         table.insert(trackids, trackasset.id)
         
-        local palyerclass = playertimes and playertimes.classes[classid]
-        local playertrack = palyerclass and palyerclass.tracks[trackasset.id]
+        
         if (playertrack and playertrack.playertime) then
           ctrlTrack:SetItem(i, 1, MakeTime(playertrack.playertime, " : "))
         end
@@ -1078,7 +1122,8 @@ function main()
     ailevels = {}
     local i = 0
     ctrlAI:DeleteAllItems()
-    local track = processed.classes[classid].tracks[trackid]
+    local class = processed.classes[classid]
+    local track = class and class.tracks[trackid]
     if (track) then
       for ai=track.minAI,track.maxAI do
         local num,time = computeTime(track.ailevels[ai])
@@ -1095,6 +1140,7 @@ function main()
   end
   
   local function updateSelection()
+    if (not ailevel) then return end
     aifrom = math.max( 80,ailevel - math.floor(aiNumLevels/2))
     aito   = math.min(120,aifrom  + aiNumLevels - 1)
     lblmod:SetLabel("Modification: "..assets.classes[classid].name.." - "..assets.tracks[trackid].name.." : "..aifrom.." - "..aito.." step: "..aiSpacing)

@@ -16,7 +16,8 @@ USE AT YOUR OWN RISK
 ## How to use
 
 ### Database Seed Setup
-The project comes with a pre-seeded "database.lua" file thanks to the community at the sector3studios forum. It is not complete, please contribute [here](https://forum.sector3studios.com/index.php?threads/adaptive-ai-database-prototype-call-for-participation.5632/) to make it better.
+The project comes with a empty "database.lua" file. You can contribute [here](https://forum.sector3studios.com/index.php?threads/adaptive-ai-database-prototype-call-for-participation.5632/) to make it better, however it
+has to be reset after every major AI or physics update.
 
 To enhance the database dump as many "aiadaptation.xml" files as you can find from many people in the "/seeds" directory (the tool will look for all *.xml files). Run the tool it will update the database and generate a "results/database.html" file similar to [this](http://htmlpreview.github.io/?https://github.com/pixeljetstream/r3e-adaptive-ai-primer/blob/master/docs/sample.html).
 
