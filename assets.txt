@@ -134,6 +134,12 @@ BMW M4 DTM 2016</option>
 <option value="5402" data-image="http://game.raceroom.com/assets/content/carlivery/mercedes-amg-dtm-team-hwa-3-5404-image-thumb.webp">
 Mercedes-AMG C 63 DTM 2016</option>
 </optgroup>
+<optgroup label="FR US Cup">
+<option value="class-5383">
+Alle FR US Cup-Wagen</option>
+<option value="5348" data-image="http://game.raceroom.com/assets/content/carlivery/firestone-10-5803-image-thumb.webp">
+Formula RaceRoom US</option>
+</optgroup>
 <optgroup label="FR2 Cup">
 <option value="class-4597">
 Alle FR2 Cup-Wagen</option>
@@ -189,6 +195,8 @@ Alle GTR 3-Wagen</option>
 Audi R8 LMS Ultra</option>
 <option value="1695" data-image="http://game.raceroom.com/assets/content/carlivery/dorr-motorsport-33-5274-image-thumb.webp">
 BMW Alpina B6 GT3</option>
+<option value="5818" data-image="http://game.raceroom.com/assets/content/carlivery/bmw-motorsport-01-5926-image-thumb.webp">
+BMW M6 GT3</option>
 <option value="1738" data-image="http://game.raceroom.com/assets/content/carlivery/schubert-motorsports-17-3575-image-thumb.webp">
 BMW Z4 GT3</option>
 <option value="5170" data-image="http://game.raceroom.com/assets/content/carlivery/m-sport-bentley-17-5187-image-thumb.webp">
@@ -377,7 +385,7 @@ Lada Vesta WTCC 2015</option>
 Strecke</div>
 <select name="track">
 <optgroup label="Bathurst Circuit">
-<option value="1846" data-image="http://game.raceroom.com/assets/content/tracklayout/bathurst-circuit-mount-panorama-1846-image-thumb.webp">
+<option value="1846" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/bathurst-circuit-mount-panorama-1846-image-thumb.webp">
 Bathurst Circuit - Mount Panorama</option>
 </optgroup>
 <optgroup label="Brands Hatch">
@@ -387,115 +395,121 @@ Brands Hatch - Indy</option>
 <optgroup label="Chang International Circuit">
 <option value="4944" data-image="http://game.raceroom.com/assets/content/tracklayout/chang-international-circuit-d-circuit-4944-image-thumb.webp">
 Chang International Circuit - D Circuit</option>
-<option value="4253" data-image="http://game.raceroom.com/assets/content/tracklayout/chang-international-circuit-full-circuit-4253-image-thumb.webp">
+<option value="4253" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/chang-international-circuit-full-circuit-4253-image-thumb.webp">
 Chang International Circuit - Full Circuit</option>
 </optgroup>
 <optgroup label="Circuit Park Zandvoort">
-<option value="1679" data-image="http://game.raceroom.com/assets/content/tracklayout/circuit-park-zandvoort-club-1679-image-thumb.webp">
+<option value="1679" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/circuit-park-zandvoort-club-1679-image-thumb.webp">
 Circuit Park Zandvoort - Club</option>
-<option value="1678" data-image="http://game.raceroom.com/assets/content/tracklayout/circuit-park-zandvoort-grand-prix-1678-image-thumb.webp">
+<option value="1678" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/circuit-park-zandvoort-grand-prix-1678-image-thumb.webp">
 Circuit Park Zandvoort - Grand Prix</option>
-<option value="1680" data-image="http://game.raceroom.com/assets/content/tracklayout/circuit-park-zandvoort-national-1680-image-thumb.webp">
+<option value="1680" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/circuit-park-zandvoort-national-1680-image-thumb.webp">
 Circuit Park Zandvoort - National</option>
 </optgroup>
 <optgroup label="Circuit Zolder">
-<option value="1684" data-image="http://game.raceroom.com/assets/content/tracklayout/circuit-zolder-grand-prix-1684-image-thumb.webp">
+<option value="1684" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/circuit-zolder-grand-prix-1684-image-thumb.webp">
 Circuit Zolder - Grand Prix</option>
 </optgroup>
 <optgroup label="EuroSpeedway Lausitz">
 <option value="3291" data-image="http://game.raceroom.com/assets/content/tracklayout/eurospeedway-lausitz-automobilsport-3291-image-thumb.webp">
 EuroSpeedway Lausitz - Automobilsport</option>
-<option value="2468" data-image="http://game.raceroom.com/assets/content/tracklayout/eurospeedway-lausitz-grand-prix-2468-image-thumb.webp">
+<option value="2468" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/eurospeedway-lausitz-grand-prix-2468-image-thumb.webp">
 EuroSpeedway Lausitz - Grand Prix</option>
 </optgroup>
+<optgroup label="Gelleråsen - Karlskoga Motorstadion">
+<option value="5925" data-image="http://game.raceroom.com/assets/content/tracklayout/karlskoga-motorstadion-gellerasen-5925-image-thumb.webp">
+Gelleråsen - Karlskoga Motorstadion - Grand Prix Circuit</option>
+<option value="6138" data-image="http://game.raceroom.com/assets/content/tracklayout/karlskoga-motorstadion-gallerasen-short-6138-image-thumb.webp">
+Gelleråsen - Karlskoga Motorstadion - Short Circuit</option>
+</optgroup>
 <optgroup label="Hockenheimring">
-<option value="1693" data-image="http://game.raceroom.com/assets/content/tracklayout/hockenheimring-grand-prix-1693-image-thumb.webp">
+<option value="1693" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/hockenheimring-grand-prix-1693-image-thumb.webp">
 Hockenheimring - Grand Prix</option>
-<option value="1763" data-image="http://game.raceroom.com/assets/content/tracklayout/hockenheimring-national-1763-image-thumb.webp">
+<option value="1763" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/hockenheimring-national-1763-image-thumb.webp">
 Hockenheimring - National</option>
 <option value="1764" data-image="http://game.raceroom.com/assets/content/tracklayout/hockenheimring-short-1764-image-thumb.webp">
 Hockenheimring - Short</option>
 </optgroup>
 <optgroup label="Hungaroring">
-<option value="1866" data-image="http://game.raceroom.com/assets/content/tracklayout/hungaroring-grand-prix-1866-image-thumb.webp">
+<option value="1866" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/hungaroring-grand-prix-1866-image-thumb.webp">
 Hungaroring - Grand Prix</option>
 </optgroup>
 <optgroup label="Indianapolis">
-<option value="1852" data-image="http://game.raceroom.com/assets/content/tracklayout/indianapolis-grand-prix-1852-image-thumb.webp">
+<option value="1852" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/indianapolis-grand-prix-1852-image-thumb.webp">
 Indianapolis - Grand Prix</option>
 <option value="2014" data-image="http://game.raceroom.com/assets/content/tracklayout/indianapolis-moto-2014-image-thumb.webp">
 Indianapolis - Moto</option>
 </optgroup>
 <optgroup label="Lakeview Hillclimb">
-<option value="1682" data-image="http://game.raceroom.com/assets/content/tracklayout/lakeview-hillclimb-full-run-1682-image-thumb.webp">
+<option value="1682" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/lakeview-hillclimb-full-run-1682-image-thumb.webp">
 Lakeview Hillclimb - Full Run</option>
 <option value="2181" data-image="http://game.raceroom.com/assets/content/tracklayout/lakeview-hillclimb-reverse-2181-image-thumb.webp">
 Lakeview Hillclimb - Reverse</option>
 </optgroup>
 <optgroup label="Macau">
-<option value="2123" data-image="http://game.raceroom.com/assets/content/tracklayout/macau-grand-prix-2123-image-thumb.webp">
+<option value="2123" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/macau-grand-prix-2123-image-thumb.webp">
 Macau - Grand Prix</option>
 </optgroup>
 <optgroup label="Mazda Laguna Seca">
-<option value="1856" data-image="http://game.raceroom.com/assets/content/tracklayout/mazda-laguna-seca-grand-prix-1856-image-thumb.webp">
+<option value="1856" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/mazda-laguna-seca-grand-prix-1856-image-thumb.webp">
 Mazda Laguna Seca - Grand Prix</option>
 </optgroup>
 <optgroup label="Mid Ohio">
-<option value="1676" data-image="http://game.raceroom.com/assets/content/tracklayout/mid-ohio-chicane-1676-image-thumb.webp">
+<option value="1676" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/mid-ohio-chicane-1676-image-thumb.webp">
 Mid Ohio - Chicane</option>
-<option value="1674" data-image="http://game.raceroom.com/assets/content/tracklayout/mid-ohio-full-1674-image-thumb.webp">
+<option value="1674" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/mid-ohio-full-1674-image-thumb.webp">
 Mid Ohio - Full</option>
-<option value="1675" data-image="http://game.raceroom.com/assets/content/tracklayout/mid-ohio-short-1675-image-thumb.webp">
+<option value="1675" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/mid-ohio-short-1675-image-thumb.webp">
 Mid Ohio - Short</option>
 </optgroup>
 <optgroup label="Monza Circuit">
-<option value="1671" data-image="http://game.raceroom.com/assets/content/tracklayout/monza-circuit-grand-prix-1671-image-thumb.webp">
+<option value="1671" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/monza-circuit-grand-prix-1671-image-thumb.webp">
 Monza Circuit - Grand Prix</option>
-<option value="1672" data-image="http://game.raceroom.com/assets/content/tracklayout/monza-circuit-junior-1672-image-thumb.webp">
+<option value="1672" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/monza-circuit-junior-1672-image-thumb.webp">
 Monza Circuit - Junior</option>
 </optgroup>
 <optgroup label="Moscow Raceway">
-<option value="3683" data-image="http://game.raceroom.com/assets/content/tracklayout/moscow-raceway-fim-3683-image-thumb.webp">
+<option value="3683" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/moscow-raceway-fim-3683-image-thumb.webp">
 Moscow Raceway - FIM</option>
-<option value="3383" data-image="http://game.raceroom.com/assets/content/tracklayout/moscow-raceway-full-3383-image-thumb.webp">
+<option value="3383" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/moscow-raceway-full-3383-image-thumb.webp">
 Moscow Raceway - Full</option>
 <option value="2473" data-image="http://game.raceroom.com/assets/content/tracklayout/moscow-raceway-sprint-2473-image-thumb.webp">
 Moscow Raceway - Sprint</option>
 </optgroup>
 <optgroup label="Motorsport Arena Oschersleben">
-<option value="2384" data-image="http://game.raceroom.com/assets/content/tracklayout/motorsport-arena-oschersleben-grand-prix-2384-image-thumb.webp">
+<option value="2384" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/motorsport-arena-oschersleben-grand-prix-2384-image-thumb.webp">
 Motorsport Arena Oschersleben - Grand Prix</option>
 </optgroup>
 <optgroup label="Nordschleife">
-<option value="5095" data-image="http://game.raceroom.com/assets/content/tracklayout/nordschleife-24-hours-5095-image-thumb.webp">
+<option value="5095" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/nordschleife-24-hours-5095-image-thumb.webp">
 Nordschleife - 24 Hours</option>
-<option value="2813" data-image="http://game.raceroom.com/assets/content/tracklayout/nordschleife-nordschleife-2813-image-thumb.webp">
+<option value="2813" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/nordschleife-nordschleife-2813-image-thumb.webp">
 Nordschleife - Nordschleife</option>
 <option value="5093" data-image="http://game.raceroom.com/assets/content/tracklayout/nordschleife-tourist-5093-image-thumb.webp">
 Nordschleife - Tourist</option>
-<option value="4975" data-image="http://game.raceroom.com/assets/content/tracklayout/nordschleife-vln-4975-image-thumb.webp">
+<option value="4975" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/nordschleife-vln-4975-image-thumb.webp">
 Nordschleife - VLN</option>
 </optgroup>
 <optgroup label="Norisring">
-<option value="2518" data-image="http://game.raceroom.com/assets/content/tracklayout/norisring-grand-prix-2518-image-thumb.webp">
+<option value="2518" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/norisring-grand-prix-2518-image-thumb.webp">
 Norisring - Grand Prix</option>
 </optgroup>
 <optgroup label="Nürburgring">
-<option value="1691" data-image="http://game.raceroom.com/assets/content/tracklayout/nurburgring-grand-prix-1691-image-thumb.webp">
+<option value="1691" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/nurburgring-grand-prix-1691-image-thumb.webp">
 Nürburgring - Grand Prix</option>
 <option value="2011" data-image="http://game.raceroom.com/assets/content/tracklayout/nurburgring-short-2011-image-thumb.webp">
 Nürburgring - Short</option>
-<option value="3377" data-image="http://game.raceroom.com/assets/content/tracklayout/nurburgring-sprint-3377-image-thumb.webp">
+<option value="3377" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/nurburgring-sprint-3377-image-thumb.webp">
 Nürburgring - Sprint</option>
 </optgroup>
 <optgroup label="Paul Ricard">
-<option value="4246" data-image="http://game.raceroom.com/assets/content/tracklayout/paul-ricard-solution-1a-4246-image-thumb.webp">
+<option value="4246" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/paul-ricard-solution-1a-4246-image-thumb.webp">
 Paul Ricard - Solution 1A</option>
 <option value="4247" data-image="http://game.raceroom.com/assets/content/tracklayout/paul-ricard-solution-1c-v2-4247-image-thumb.webp">
 Paul Ricard - Solution 1C-V2</option>
 <option value="4248" data-image="http://game.raceroom.com/assets/content/tracklayout/paul-ricard-solution-2a-short-4248-image-thumb.webp">
 Paul Ricard - Solution 2A short</option>
-<option value="2867" data-image="http://game.raceroom.com/assets/content/tracklayout/paul-ricard-solution-3c-2867-image-thumb.webp">
+<option value="2867" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/paul-ricard-solution-3c-2867-image-thumb.webp">
 Paul Ricard - Solution 3C</option>
 </optgroup>
 <optgroup label="Portimao Circuit">
@@ -509,7 +523,7 @@ Portimao Circuit - Grand Prix</option>
 Portimao Circuit - National</option>
 </optgroup>
 <optgroup label="RaceRoom Hillclimb">
-<option value="1709" data-image="http://game.raceroom.com/assets/content/tracklayout/raceroom-hillclimb-full-run-1709-image-thumb.webp">
+<option value="1709" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/raceroom-hillclimb-full-run-1709-image-thumb.webp">
 RaceRoom Hillclimb - Full Run</option>
 <option value="2214" data-image="http://game.raceroom.com/assets/content/tracklayout/raceroom-hillclimb-reverse-2214-image-thumb.webp">
 RaceRoom Hillclimb - Reverse</option>
@@ -527,21 +541,21 @@ RaceRoom Raceway - Grand Prix</option>
 RaceRoom Raceway - National</option>
 </optgroup>
 <optgroup label="Red Bull Ring Spielberg">
-<option value="2556" data-image="http://game.raceroom.com/assets/content/tracklayout/red-bull-ring-spielberg-grand-prix-circuit-2556-image-thumb.webp">
+<option value="2556" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/red-bull-ring-spielberg-grand-prix-circuit-2556-image-thumb.webp">
 Red Bull Ring Spielberg - Grand Prix Circuit</option>
 <option value="5794" data-image="http://game.raceroom.com/assets/content/tracklayout/red-bull-ring-spielberg-sudschleife-national-circuit-5794-image-thumb.webp">
 Red Bull Ring Spielberg - Südschleife National Circuit</option>
 </optgroup>
 <optgroup label="Sachsenring">
-<option value="3538" data-image="http://game.raceroom.com/assets/content/tracklayout/sachsenring-grand-prix-3538-image-thumb.webp">
+<option value="3538" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/sachsenring-grand-prix-3538-image-thumb.webp">
 Sachsenring - Grand Prix</option>
 </optgroup>
 <optgroup label="Salzburgring">
-<option value="2026" data-image="http://game.raceroom.com/assets/content/tracklayout/salzburgring-grand-prix-2026-image-thumb.webp">
+<option value="2026" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/salzburgring-grand-prix-2026-image-thumb.webp">
 Salzburgring - Grand Prix</option>
 </optgroup>
 <optgroup label="Shanghai Circuit">
-<option value="2027" data-image="http://game.raceroom.com/assets/content/tracklayout/shanghai-circuit-grand-prix-2027-image-thumb.webp">
+<option value="2027" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/shanghai-circuit-grand-prix-2027-image-thumb.webp">
 Shanghai Circuit - Grand Prix</option>
 <option value="4041" data-image="http://game.raceroom.com/assets/content/tracklayout/shanghai-circuit-intermediate-wtcc-4041-image-thumb.webp">
 Shanghai Circuit - Intermediate (WTCC)</option>
@@ -549,9 +563,9 @@ Shanghai Circuit - Intermediate (WTCC)</option>
 Shanghai Circuit - West Long</option>
 </optgroup>
 <optgroup label="Silverstone Circuit">
-<option value="4039" data-image="http://game.raceroom.com/assets/content/tracklayout/silverstone-circuit-grand-prix-4039-image-thumb.webp">
+<option value="4039" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/silverstone-circuit-grand-prix-4039-image-thumb.webp">
 Silverstone Circuit - Grand Prix</option>
-<option value="5862" data-image="http://game.raceroom.com/assets/content/tracklayout/silverstone-circuit-historic-grand-prix-5862-image-thumb.webp">
+<option value="5862" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/silverstone-circuit-historic-grand-prix-5862-image-thumb.webp">
 Silverstone Circuit - Historic Grand Prix</option>
 <option value="5816" data-image="http://game.raceroom.com/assets/content/tracklayout/silverstone-circuit-international-5816-image-thumb.webp">
 Silverstone Circuit - International</option>
@@ -559,11 +573,11 @@ Silverstone Circuit - International</option>
 Silverstone Circuit - National</option>
 </optgroup>
 <optgroup label="Slovakia Ring">
-<option value="2064" data-image="http://game.raceroom.com/assets/content/tracklayout/slovakia-ring-grand-prix-2064-image-thumb.webp">
+<option value="2064" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/slovakia-ring-grand-prix-2064-image-thumb.webp">
 Slovakia Ring - Grand Prix</option>
 </optgroup>
 <optgroup label="Sonoma Raceway">
-<option value="3913" data-image="http://game.raceroom.com/assets/content/tracklayout/sonoma-raceway-irl-3913-image-thumb.webp">
+<option value="3913" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/sonoma-raceway-irl-3913-image-thumb.webp">
 Sonoma Raceway - IRL</option>
 <option value="3912" data-image="http://game.raceroom.com/assets/content/tracklayout/sonoma-raceway-long-3912-image-thumb.webp">
 Sonoma Raceway - Long</option>
@@ -573,11 +587,11 @@ Sonoma Raceway - Sprint</option>
 Sonoma Raceway - WTCC</option>
 </optgroup>
 <optgroup label="Spa-Francorchamps">
-<option value="4542" data-image="http://game.raceroom.com/assets/content/tracklayout/spa-francorchamps-classic-4542-image-thumb.webp">
+<option value="4542" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/spa-francorchamps-classic-4542-image-thumb.webp">
 Spa-Francorchamps - Classic</option>
 <option value="4543" data-image="http://game.raceroom.com/assets/content/tracklayout/spa-francorchamps-combined-4543-image-thumb.webp">
 Spa-Francorchamps - Combined</option>
-<option value="3870" data-image="http://game.raceroom.com/assets/content/tracklayout/spa-francorchamps-grand-prix-3870-image-thumb.webp">
+<option value="3870" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/spa-francorchamps-grand-prix-3870-image-thumb.webp">
 Spa-Francorchamps - Grand Prix</option>
 </optgroup>
 <optgroup label="Stowe Circuit">
@@ -587,9 +601,9 @@ Stowe Circuit - Long</option>
 Stowe Circuit - Short</option>
 </optgroup>
 <optgroup label="Suzuka Circuit">
-<option value="2012" data-image="http://game.raceroom.com/assets/content/tracklayout/suzuka-circuit-east-course-2012-image-thumb.webp">
+<option value="2012" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/suzuka-circuit-east-course-2012-image-thumb.webp">
 Suzuka Circuit - East Course</option>
-<option value="1841" data-image="http://game.raceroom.com/assets/content/tracklayout/suzuka-circuit-grand-prix-1841-image-thumb.webp">
+<option value="1841" data-image="http://game.raceroom.com/r3e/assets/content/tracklayout/suzuka-circuit-grand-prix-1841-image-thumb.webp">
 Suzuka Circuit - Grand Prix</option>
 <option value="2013" data-image="http://game.raceroom.com/assets/content/tracklayout/suzuka-circuit-west-course-2013-image-thumb.webp">
 Suzuka Circuit - West Course</option>
