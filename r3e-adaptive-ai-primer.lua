@@ -991,8 +991,11 @@ function main()
   local targetfile = specialFilename(cfg.targetfile)
 
   if not targetfile or not wx.wxFileName(targetfile):FileExists() then
-    local label = wx.wxStaticText(panel, wx.wxID_ANY, "Could not find R3E adaptive AI file:\n"..tostring(targetfile))
+    local label = wx.wxStaticText(panel, wx.wxID_ANY, "Could not find R3E adaptive AI file:\n"..tostring(targetfile).."\n\nEdit config.lua targetfile entry for proper file path.",
+                                  wx.wxPoint(8,8))
     frame.label = label
+    panel:Fit()
+    frame:Fit()
     printlog("error")
     return
   end
