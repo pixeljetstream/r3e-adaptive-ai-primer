@@ -590,6 +590,41 @@ local function clearAdaptiveAll(filename)
   end
 end
 
+local function resetAll(filename)
+  local f = io.open(filename,"rt")
+  assert(f,"file not found: "..filename)
+  local xml = f:read("*a")
+  f:close()
+--[[
+          <!-- Index:0 -->
+          <key type="uint32">97</key>
+          <custom>
+            <custom type="float32">92.45950005</custom>
+            <custom type="uint32">0</custom>
+          </custom>
+]]
+  
+  
+  local xml,num = xml:gsub(
+      '([^\n]+<!%-%- Index:%d+ %-%->%s+'..
+      '<key type="uint32">%d+</key>%s+'..
+      '<custom>%s+'..
+      '  <custom type="float32">%d+%.%d+</custom>%s+'..
+      '  <custom type="uint32">)(%d+)(</custom>%s+'..
+      '</custom>\n)' 
+    , function(s,m,e)
+      
+      return s.."0"..e
+  end)
+  
+  if (num > 0) then
+    printlog("reset all ai file", filename, num)
+    local f = io.open(filename,"wt")
+    f:write(xml)
+    f:close()
+  end
+end
+
 local function modifyAdaptive(filename, processed, trackid, classid, aifrom, aito, aispacing)
   
   local class = processed.classes[classid]
@@ -1019,12 +1054,13 @@ function main()
   
   local btnapply  =    wx.wxButton(winUpper, wx.wxID_ANY, "Apply Selected Modification",  wx.wxPoint(8,70),        wx.wxSize(200,20))
   local btnremgen =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove likely generated",      wx.wxPoint(ww-8-240-240-4,70), wx.wxSize(240,20))
-  local btnremall =    wx.wxButton(winUpper, wx.wxID_ANY, "Remove all AI times",          wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
+  local btnreset  =    wx.wxButton(winUpper, wx.wxID_ANY, "Reset all AI times",           wx.wxPoint(ww-8-240,70), wx.wxSize(240,20))
  
   winUpper.lblfile = lblfile
   winUpper.lblmod  = lblmod
   winUpper.btnapply = btnapply
   winUpper.binremove = btnremove
+  winUpper.btnreset = btnreset
   
   local class 
   local classid
@@ -1039,8 +1075,8 @@ function main()
     clearAdaptive(targetfile)
   end)
   
-  btnremall:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
-    clearAdaptiveAll(targetfile)
+  btnreset:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)
+    resetAll(targetfile)
   end)
   
   btnapply:Connect( wx.wxEVT_COMMAND_BUTTON_CLICKED, function(event)

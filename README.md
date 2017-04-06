@@ -15,7 +15,16 @@ USE AT YOUR OWN RISK
 
 ## How to use
 
+### Resetting the AI times 
+
+You can set the existing AI times to zero influence. This is particularly useful whenever the game's AI algorithms have changed a lot.
+The benefit is that you will not loose your own existing laptimes, and the AI will use the old AI levels to start its adaptation search.
+
+* Run the tool (it will print some command-line stuff)
+* Press the "Reset all AI times" button
+
 ### Database Seed Setup
+
 The project comes with a "database.lua" file provided by "Cheerfullyinsane". You can contribute [here](https://forum.sector3studios.com/index.php?threads/adaptive-ai-database-prototype-call-for-participation.5632/) to make it better, however it
 has to be reset after every major AI or physics update (current database state is roughly from January 2017 onwards).
 
@@ -30,12 +39,12 @@ When the tool is run, it also generates a "results/processed.html" file ([exampl
 Check the "config.lua" file for some of the influence on the fitting/plausibility checks.
 
 ### Modifying your AI file via UI
+
 * Run the tool (it will print some command-line stuff)
 * Select the type of car and class you want to modify as well as the target ai level (not all are available, it depends on the database and how it was processed)
 * **Warning:** The existing ai levels for the track/class you are editing will be overwritten in your aiadaptation.xml file, make backups! Double check on classid and trackid!
 * The modification is mentioned in the label above the button. The actual number of ai levels and their "spacing" (say 92,94,96) are set via the config file at the bottom.
 * By pressing the "Apply" button your settings for that track/class will be overwritten
-
 
 ### Modifying an AI file via command-line
 
