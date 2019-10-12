@@ -1,3 +1,9 @@
+-- general setup
+
+-- leave r3egamedir nil to use a registry query, otherwise enter manually (directory that contains RRRE.exe)
+-- e.g [[C:\Program Files (x86)\Steam\SteamApps\common\raceroom racing experience\Game]]
+r3egamedir = nil
+
 -- html generation
 reportfile = "database.html"
 processedfile = "processed.html"
@@ -25,6 +31,4 @@ testMinAIdiffs   = 4     -- how far away the extreme AI levels we have for a tra
 targetfile   = [[$USER_DOCUMENTS$\My Games\SimBin\RaceRoom Racing Experience\UserData\Player1\aiadaptation.xml]]
 aiNumLevels  = 5
 aiSpacing    = 1
--- leave nil to use registry query, otherwise enter manually (directory that contains RRRE.exe)
--- e.g [[C:\Program Files (x86)\Steam\SteamApps\common\raceroom racing experience\Game]]
-r3egamedir = nil
+
