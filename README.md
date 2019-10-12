@@ -5,7 +5,10 @@ Allows tweaking of the adaptive AI file for [R3E](http://game.raceroom.com/), ba
 The file can be found in 
 ```My Documents\My Games\SimBin\RaceRoom Racing Experience\UserData\Player1\aiadaptation.xml```
 
-How the system works was reverse engineered [here](https://forum.sector3studios.com/index.php?threads/the-new-adaptive-ai.5013/page-4#post-70837) by the user "Cheerfullyinsane" on the sector3studios forums. This work is based upong the findings in that thread.
+How the system works was reverse engineered [here](https://forum.sector3studios.com/index.php?threads/the-new-adaptive-ai.5013/page-4#post-70837) by the user "CheerfullyInsane" on the sector3studios forums. This work is based upon the findings in that thread.
+
+He also describes [how to use the tool here](https://forum.sector3studios.com/index.php?threads/adaptive-ai-the-tool-how-to.12888/).
+
 
 USE AT YOUR OWN RISK
 
@@ -14,6 +17,9 @@ USE AT YOUR OWN RISK
 ## Work in progress
 
 ## How to use
+
+The tool will attempt to find your `aiadaptation.xml` file itself, as well as the R3E Game directory. If it fails to do so you may want to
+edit the `config.lua` file to setup the `targetFile` and `r3eGameDir` entries for your system.
 
 ### Resetting the AI times 
 

@@ -150,44 +150,59 @@ end
 -------------------------------------------------------------------------------------
 --
 
-local function parseAssets(filename)
+local function parseJson(filename)
+  
+  printlog("parsing:",filename)
   local f = io.open(filename,"rt")
-  local str = f:read("*a")
+  
+  if (not f) then return nil end
+  
+  local txt = f:read("*a")
   f:close()
   
-  -- <optgroup label="ADAC GT Masters 2013">
-  -- <option value="class-2922">
-  
-  local strclasses = str:match('<select name="car_class">(.-)</select>')
+  local cjson = require "cjson"
+  local json = cjson.decode(txt)
 
-  printlog("Classes")
   local numClasses = 0
   local classes = {}
   local classesSorted = {}
-  for name,id in strclasses:gmatch('<optgroup label="([^<>]-)">%s*<option value="class%-([^<>]-)">') do
-    local tab = {name=name, id=id}
+  for _,v in pairs(json.classes) do
+    local id = tostring(v.Id)
+    local tab = {name=v.Name, id=id}
     table.insert(classesSorted, tab)
     classes[id] = tab
-    printlog(id,name)
     numClasses = numClasses + 1
   end
-  printlog(numClasses)
- 
-  -- <option value="5095" data-image="http://game.raceroom.com/de/assets/content/tracklayout/nordschleife-24-hours-5095-image-thumb.webp">
-  -- Nordschleife - 24 Hours</option>
   
-  local strtracks = str:match('<select name="track">(.-)</select>')
   
-  printlog("Tracks")
   local tracks = {}
   local tracksSorted = {}
   local numTracks = 0
-  for id,name in strtracks:gmatch('<option value="([^<>]-)".->%s*([^<>]-)</option>') do
-    local tab = {name=name, id=id}
-    table.insert(tracksSorted, tab)
-    tracks[id] = tab
-    printlog(id,name)
-    numTracks = numTracks + 1
+  for _,v in pairs(json.tracks) do
+    for _,layout in pairs(v.layouts) do
+      local name = v.Name.." - "..layout.Name
+      local id = tostring(layout.Id)
+      local tab = {name=name, id=id}
+      table.insert(tracksSorted, tab)
+      tracks[id] = tab
+      numTracks = numTracks + 1
+    end
+  end
+  json = nil
+  
+  
+  table.sort(classesSorted, function(a,b) return a.name < b.name end)
+  table.sort(tracksSorted,  function(a,b) return a.name < b.name end)
+  
+  printlog("Classes")
+  for i,v in ipairs(classesSorted) do
+    printlog(v.id,v.name)
+  end
+  printlog(numClasses)
+  
+  printlog("Tracks")
+  for i,v in ipairs(tracksSorted) do
+    printlog(v.id,v.name)
   end
   printlog(numTracks)
   
@@ -200,12 +215,40 @@ local function parseAssets(filename)
     numTracks=numTracks
   }
 end
-local function makeIcon(url,name,style)
-  return '<img src="'..url..'" alt="'..name..'" title="'..name..'" style="vertical-align:middle;'..(style or "")..'" >'
+
+
+local jsonFile = "r3e-data.json"
+local r3egamedir = cfg.r3egamedir
+if (not r3egamedir) then
+  local winapi = require("winapi")
+
+  local key = winapi.open_reg_key [[HKEY_CURRENT_USER\Software\Classes\rrre\shell\open\command]]
+  if (key) then
+    local value = key:get_value()
+    if (value) then
+      r3egamedir = value:match('%b""'):sub(2,-11)
+    end
+    key:close()
+  end
+end
+if (r3egamedir) then
+  r3egamedir = r3egamedir:gsub("\\","/")
+  local f = io.open(r3egamedir.."/GameData/General/r3e-data.json")
+  if (f) then
+    f:close()
+    jsonFile = r3egamedir.."/GameData/General/r3e-data.json"
+  end
 end
 
-local assets = parseAssets("assets.txt")
+local assets = parseJson(jsonFile)
 
+if (not assets) then
+  printlog("ERROR: could not find r3e-data.json")
+  printlog("       manually set config.lua - r3egamedir")
+  printlog("       or put r3e-data.json into app's directory")
+  os.execute("pause")
+  os.exit()
+end
 
 -------------------------------------------------------------------------------------
 --
@@ -919,7 +962,6 @@ local function processDatabase(database)
 end
 
 ---------------------------------------------
-
 require("wx")
 local serpent = require("serpent")
 
