@@ -434,9 +434,9 @@ local function parseAdaptive(filename, database, playertimes)
   end
   
 --[[
-<AiAdaptation ID="/aiadaptation">
+  <AiAdaptation ID="/aiadaptation">
   <latestVersion type="uint32">0</latestVersion>
-  <custom>
+  <aiAdaptationData>
     <!-- Index:0 -->
     <key type="int32">263</key>
     <value>
@@ -462,6 +462,8 @@ local function parseAdaptive(filename, database, playertimes)
       </custom>
       ...
     </value>
+  </aiAdaptationData>
+  </AiAdaptation>
 ]]
   
   local function iterate3(tab, fn)
@@ -478,7 +480,7 @@ local function parseAdaptive(filename, database, playertimes)
     end
   end
   
-  local tracklist = xml.AiAdaptation.custom
+  local tracklist = xml.AiAdaptation.aiAdaptationData
   
   local added = false
   
@@ -681,9 +683,9 @@ local function modifyAdaptive(filename, processed, trackid, classid, aifrom, ait
     return
   end
 --[[
-<AiAdaptation ID="/aiadaptation">
+  <AiAdaptation ID="/aiadaptation">
   <latestVersion type="uint32">0</latestVersion>
-  <custom>
+  <aiAdaptationData>
     <!-- Index:0 -->
     <key type="int32">263</key>
     <value>
@@ -709,6 +711,8 @@ local function modifyAdaptive(filename, processed, trackid, classid, aifrom, ait
       </custom>
       ...
     </value>
+  </aiAdaptationData>
+  </AiAdaptation>
 ]]
   local f = io.open(filename,"rt")
   assert(f,"file not found: "..filename)
