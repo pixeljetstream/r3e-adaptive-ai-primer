@@ -443,22 +443,22 @@ local function parseAdaptive(filename, database, playertimes)
       <!-- Index:0 -->
       <key type="int32">253</key>
       <custom>
-        <custom>
+        <playerBestLapTimes>
           <!-- Index:0 -->
           <custom type="float32">108.74433136</custom>
           <!-- Index:1 -->
           <custom type="float32">115.84943390</custom>
           <!-- Index:2 -->
           <custom type="float32">123.27467346</custom>
-        </custom>
-        <custom>
+        </playerBestLapTimes>
+        <aiSkillVsLapTimes>
           <!-- Index:0 -->
           <key type="uint32">100</key>
           <custom>
-            <custom type="float32">108.44427490</custom>
-            <custom type="uint32">2</custom>
+            <averagedLapTime type="float32">108.44427490</averagedLapTime>
+            <numberOfSampledRaces type="uint32">2</numberOfSampledRaces>
           </custom>
-        </custom>
+        </aiSkillVsLapTimes>
       </custom>
       ...
     </value>
@@ -574,8 +574,8 @@ local function clearAdaptive(filename)
           <!-- Index:0 -->
           <key type="uint32">97</key>
           <custom>
-            <custom type="float32">92.45950005</custom>
-            <custom type="uint32">0</custom>
+            <averagedLapTime type="float32">92.45950005</averagedLapTime>
+            <numberOfSampledRaces type="uint32">0</numberOfSampledRaces>
           </custom>
 ]]
   
@@ -584,8 +584,8 @@ local function clearAdaptive(filename)
       '[^\n]+<!%-%- Index:%d+ %-%->%s+'..
       '<key type="uint32">%d+</key>%s+'..
       '<custom>%s+'..
-      '  <custom type="float32">%d?%d%d%.%d%d%d%d000[4-6]</custom>%s+'..
-      '  <custom type="uint32">%d+</custom>%s+'..
+      '  <averagedLapTime type="float32">%d?%d%d%.%d%d%d%d000[4-6]</averagedLapTime>%s+'..
+      '  <numberOfSampledRaces type="uint32">%d+</numberOfSampledRaces>%s+'..
       '</custom>\n' 
     , function(str)
       --printlog(str)
@@ -619,8 +619,8 @@ local function clearAdaptiveAll(filename)
       '[^\n]+<!%-%- Index:%d+ %-%->%s+'..
       '<key type="uint32">%d+</key>%s+'..
       '<custom>%s+'..
-      '  <custom type="float32">%d+%.%d+</custom>%s+'..
-      '  <custom type="uint32">%d+</custom>%s+'..
+      '  <averagedLapTime type="float32">%d+%.%d+</averagedLapTime>%s+'..
+      '  <numberOfSampledRaces type="uint32">%d+</numberOfSampledRaces>%s+'..
       '</custom>\n' 
     , function(str)
       --printlog(str)
@@ -644,8 +644,8 @@ local function resetAll(filename)
           <!-- Index:0 -->
           <key type="uint32">97</key>
           <custom>
-            <custom type="float32">92.45950005</custom>
-            <custom type="uint32">0</custom>
+            <averagedLapTime type="float32">92.45950005</averagedLapTime>
+            <numberOfSampledRaces type="uint32">0</numberOfSampledRaces>
           </custom>
 ]]
   
@@ -654,8 +654,8 @@ local function resetAll(filename)
       '([^\n]+<!%-%- Index:%d+ %-%->%s+'..
       '<key type="uint32">%d+</key>%s+'..
       '<custom>%s+'..
-      '  <custom type="float32">%d+%.%d+</custom>%s+'..
-      '  <custom type="uint32">)(%d+)(</custom>%s+'..
+      '  <averagedLapTime type="float32">%d+%.%d+</averagedLapTime>%s+'..
+      '  <numberOfSampledRaces type="uint32">)(%d+)(</numberOfSampledRaces>%s+'..
       '</custom>\n)' 
     , function(s,m,e)
       
@@ -692,22 +692,22 @@ local function modifyAdaptive(filename, processed, trackid, classid, aifrom, ait
       <!-- Index:0 -->
       <key type="int32">253</key>
       <custom>
-        <custom>
+        <playerBestLapTimes>
           <!-- Index:0 -->
           <custom type="float32">108.74433136</custom>
           <!-- Index:1 -->
           <custom type="float32">115.84943390</custom>
           <!-- Index:2 -->
           <custom type="float32">123.27467346</custom>
-        </custom>
-        <custom>
+        </playerBestLapTimes>
+        <aiSkillVsLapTimes>
           <!-- Index:0 -->
           <key type="uint32">100</key>
           <custom>
-            <custom type="float32">108.44427490</custom>
-            <custom type="uint32">2</custom>
+            <averagedLapTime type="float32">108.44427490</averagedLapTime>
+            <numberOfSampledRaces type="uint32">2</numberOfSampledRaces>
           </custom>
-        </custom>
+        </aiSkillVsLapTimes>
       </custom>
       ...
     </value>
@@ -723,9 +723,10 @@ local function modifyAdaptive(filename, processed, trackid, classid, aifrom, ait
   
   local xmlnew = xml:gsub('(<key type="int32">'..trackid..'</key>%s*<value>)(.-)(</value>)', 
   function(tpre,tracks,tpost)
+    printlog("found track", trackid)
     local tracks = tracks:gsub('(<key type="int32">'..classid..'</key>\n%s*<custom>\n)(.-)(\n      </custom>)',
     function(cpre,class,cpost)
-      local class = class:gsub('(</custom>%s*<custom>)(.*)(\n%s*</custom>)$',
+      local class = class:gsub('(</playerBestLapTimes>%s*<aiSkillVsLapTimes>)(.*)(\n%s*</aiSkillVsLapTimes>)$',
       function(apre,aold,apost)
         local anew = ""
         local indent = string.rep(' ',10)
@@ -740,8 +741,8 @@ local function modifyAdaptive(filename, processed, trackid, classid, aifrom, ait
             anew = anew..indent..'<!-- Index:'..idx..' -->\n'
             anew = anew..indent..'<key type="uint32">'..ai..'</key>\n'
             anew = anew..indent..'<custom>\n'
-            anew = anew..indent..'  <custom type="float32">'..outputTime(time)..'</custom>\n'
-            anew = anew..indent..'  <custom type="uint32">0</custom>\n'
+            anew = anew..indent..'  <averagedLapTime type="float32">'..outputTime(time)..'</averagedLapTime>\n'
+            anew = anew..indent..'  <numberOfSampledRaces type="uint32">0</numberOfSampledRaces>\n'
             anew = anew..indent..'</custom>'
             idx = idx + 1
           end
