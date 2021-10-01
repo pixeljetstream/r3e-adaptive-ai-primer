@@ -32,3 +32,6 @@ targetfile   = [[$USER_DOCUMENTS$\My Games\SimBin\RaceRoom Racing Experience\Use
 aiNumLevels  = 5
 aiSpacing    = 1
 
+--for debugging override
+--targetfile   = [[E:\projects\r3e-adaptive-ai-primer\tests\aiadaptation.xml]]
+
